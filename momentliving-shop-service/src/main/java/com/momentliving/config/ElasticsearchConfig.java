@@ -14,7 +14,7 @@ import java.util.Arrays;
 /**
  * Elasticsearch 客户端配置
  *
- * <p>RestHighLevelClient 是 ES 官方 7.x 标准 Java 客户端（黑马 e/f 文档同款 API），
+ * <p>RestHighLevelClient 是 ES 官方 7.x 标准 Java 客户端，
  * 8.x 起改用 elasticsearch-java 新客户端，企业存量系统仍以 7.x 居多，故本项目锁定 7.17.18。
  */
 @Configuration

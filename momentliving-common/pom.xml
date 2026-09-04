@@ -12,7 +12,7 @@
 
     <artifactId>momentliving-common</artifactId>
     <name>momentliving-common</name>
-    <description>黑马点评通用模块：常量、工具类、异常、统一返回结果</description>
+    <description>一刻生活通用模块：常量、工具类、异常、统一返回结果</description>
 
     <dependencies>
         <!-- 内部模块：UserHolder 等上下文类需要用到 momentliving-pojo 的 UserVO -->

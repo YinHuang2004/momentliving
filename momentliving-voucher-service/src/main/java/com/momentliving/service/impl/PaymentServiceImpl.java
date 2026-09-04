@@ -232,7 +232,7 @@ public class PaymentServiceImpl implements PaymentService {
     private String loadSubject(Long voucherId) {
         Voucher voucher = voucherMapper.selectById(voucherId);
         String title = voucher.getTitle();
-        return title == null ? "黑马点评优惠券" : title;
+        return title == null ? "一刻生活优惠券" : title;
     }
 
     private AliPayProvider aliProvider() {

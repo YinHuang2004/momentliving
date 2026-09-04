@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.momentliving</groupId>
+        <artifactId>momentliving</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>momentliving-api</artifactId>
+    <name>momentliving-api</name>
+    <description>微服务 Feign 接口定义模块：跨服务调用契约（Feign 客户端 + 拦截器）</description>
+
+    <dependencies>
+        <!-- 内部模块：Feign 接口返回值/参数用到的 Result、UserVO 等公共类型 -->
+        <dependency>
+            <groupId>com.momentliving</groupId>
+            <artifactId>momentliving-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.momentliving</groupId>
+            <artifactId>momentliving-pojo</artifactId>
+        </dependency>
+
+        <!-- OpenFeign：定义 @FeignClient 接口（版本由父工程 Spring Cloud BOM 统一管理） -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <!-- feign-form：OpenFeign 上传 MultipartFile 需要（Feign 默认不支持 multipart/form-data） -->
+        <dependency>
+            <groupId>io.github.openfeign.form</groupId>
+            <artifactId>feign-form</artifactId>
+            <version>3.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign.form</groupId>
+            <artifactId>feign-form-spring</artifactId>
+            <version>3.8.0</version>
+        </dependency>
+    </dependencies>
+</project>

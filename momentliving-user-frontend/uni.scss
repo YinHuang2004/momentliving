@@ -1,0 +1,27 @@
+/* ========== 一刻生活品牌色（与 19 号文档共享设计语言一致） ========== */
+$brand-primary: #6B8E5A;   // 抹茶绿：按钮/Tab 高亮/关键标签/Logo 底色
+$brand-dark:    #4A6B4D;   // 橄榄深绿：商家端顶栏/管理端侧边栏
+$brand-accent:  #D4A574;   // 米橘：价格/限时徽标/关键统计数字
+$brand-bg:      #FAF7F0;   // 米白：页面/卡片主背景
+$brand-bg-2:    #F0EDE5;   // 米白深一档：卡片底/分区
+$brand-line:    #E5E1D6;   // 描边/表格线
+$text-main:     #1F2421;   // 主文字（偏暖黑）
+$text-sub:      #7A8580;   // 次文字/占位
+
+/* 圆角/阴影/字号（三端统一） */
+$radius-card:   20px;
+$radius-btn:    999px;     // 胶囊按钮
+$shadow-card:   0 2px 12px rgba(0, 0, 0, 0.08);
+$font-main:     15px;
+$font-btn:      16px;      // 主按钮字号
+
+/* 覆盖 uni-app 内置变量（兼容 uview-plus 组件） */
+$uni-color-primary: $brand-primary;
+$uni-color-success: $brand-primary;
+$uni-color-warning: $brand-accent;
+$uni-text-color:    $text-main;
+$uni-text-color-grey: $text-sub;
+$uni-bg-color:      $brand-bg;
+
+/* uview-plus 主题变量 */
+@import 'uview-plus/theme.scss';

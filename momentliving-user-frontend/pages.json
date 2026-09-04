@@ -1,0 +1,188 @@
+{
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^u--(.*)": "uview-plus/components/u-$1/u-$1.vue",
+      "^up-(.*)": "uview-plus/components/u-$1/u-$1.vue",
+      "^u-([^-].*)": "uview-plus/components/u-$1/u-$1.vue"
+    }
+  },
+  "pages": [
+    {
+      "path": "pages/user/login/login",
+      "style": { "navigationBarTitleText": "登录" }
+    },
+    {
+      "path": "pages/user/home/home",
+      "style": { "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/shop/shopDetail",
+      "style": { "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/seckill/seckill",
+      "style": { "navigationBarTitleText": "限时秒杀" }
+    },
+    {
+      "path": "pages/user/blog/blogList",
+      "style": { "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/blog/blogDetail",
+      "style": { "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/blog/blogPublish",
+      "style": { "navigationBarTitleText": "发布博客", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/message/message",
+      "style": { "navigationBarTitleText": "消息" }
+    },
+    {
+      "path": "pages/user/order/orderList",
+      "style": { "navigationBarTitleText": "我的订单", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/order/orderDetail",
+      "style": { "navigationBarTitleText": "订单详情", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/pay/payConfirm",
+      "style": { "navigationBarTitleText": "确认支付", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/mine/mine",
+      "style": { "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/profile/profile",
+      "style": { "navigationBarTitleText": "编辑资料", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/voucher/myVoucher",
+      "style": { "navigationBarTitleText": "我的优惠券", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/sign/sign",
+      "style": { "navigationBarTitleText": "签到", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/follow/followList",
+      "style": { "navigationBarTitleText": "关注与粉丝", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/blog/myBlogs",
+      "style": { "navigationBarTitleText": "博客列表", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/chat/chatRoom",
+      "style": { "navigationBarTitleText": "聊天", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/chat/userSearch",
+      "style": { "navigationBarTitleText": "搜索用户", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/chat/groupCreate",
+      "style": { "navigationBarTitleText": "发起群聊", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/chat/groupInfo",
+      "style": { "navigationBarTitleText": "群聊信息", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/userHome/userHome",
+      "style": { "navigationBarTitleText": "个人主页", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/blog/blogCollect",
+      "style": { "navigationBarTitleText": "我的收藏", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/favorite/shopFavorite",
+      "style": { "navigationBarTitleText": "收藏店铺", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/user/ai/chat",
+      "style": { "navigationBarTitleText": "AI 助手", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/merchant/login/login",
+      "style": { "navigationBarTitleText": "商家登录" }
+    },
+    {
+      "path": "pages/merchant/apply/apply",
+      "style": { "navigationBarTitleText": "商家入驻申请", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/merchant/shopApply/apply",
+      "style": { "navigationBarTitleText": "开店申请", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/merchant/workbench/workbench",
+      "style": { "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/merchant/verify/verify",
+      "style": { "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/merchant/ai/assistant",
+      "style": { "navigationBarTitleText": "AI 经营助手" }
+    },
+    {
+      "path": "pages/merchant/records/records",
+      "style": { "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/merchant/mine/mine",
+      "style": { "navigationStyle": "custom" }
+    }
+  ],
+  "tabBar": {
+    "color": "#7A8580",
+    "selectedColor": "#6B8E5A",
+    "backgroundColor": "#FAF7F0",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/user/home/home",
+        "text": "首页",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/user/seckill/seckill",
+        "text": "秒杀",
+        "iconPath": "static/tabbar/seckill.png",
+        "selectedIconPath": "static/tabbar/seckill-active.png"
+      },
+      {
+        "pagePath": "pages/user/blog/blogList",
+        "text": "博客",
+        "iconPath": "static/tabbar/blog.png",
+        "selectedIconPath": "static/tabbar/blog-active.png"
+      },
+      {
+        "pagePath": "pages/user/message/message",
+        "text": "消息",
+        "iconPath": "static/tabbar/message.png",
+        "selectedIconPath": "static/tabbar/message-active.png"
+      },
+      {
+        "pagePath": "pages/user/mine/mine",
+        "text": "我的",
+        "iconPath": "static/tabbar/mine.png",
+        "selectedIconPath": "static/tabbar/mine-active.png"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "一刻生活",
+    "navigationBarBackgroundColor": "#FAF7F0",
+    "backgroundColor": "#FAF7F0"
+  }
+}

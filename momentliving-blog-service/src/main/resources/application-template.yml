@@ -1,0 +1,49 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: blog-service
+  # MySQL
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/momentliving?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: # 请填写你的 MySQL 密码
+  # Redis
+  data:
+    redis:
+      host: # 请填写你的 Redis 地址（如 localhost 或 192.168.x.x）
+      port: 6379
+      password: # 请填写你的 Redis 密码（无密码则留空）
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+# MyBatis-Plus
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.momentliving.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+
+# 日志级别
+logging:
+  level:
+    com.momentliving.mapper: debug
+
+# SpringDoc OpenAPI
+springdoc:
+  swagger-ui:
+    path: /doc.html
+
+# JWT（03 章阶段 RefreshTokenInterceptor 仍在本服务解析 JWT，07 章上移到网关后删除）
+momentliving:
+  jwt:
+    secret: # 请填写你的 JWT 密钥
+    access-token-ttl: 30
+    refresh-token-ttl: 7
+    token-name: authorization

@@ -1,0 +1,19 @@
+
+# ---------- Data ID: momentliving-pay.yaml (可选：支付配置单独一个 Data ID) ----------
+# 装载方式：voucher-service 的 bootstrap.yml shared-configs 追加该 Data ID，
+# 或直接并进 momentliving-common.yaml（支付参数只有 voucher-service 读，放一起也无害）
+#
+# momentliving:
+#   pay:
+#     order-timeout-minutes: 30
+#     mock-enabled: false          # 本地演示 true；生产必须 false
+#     alipay:
+#       enabled: true
+#       gateway: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+#       app-id: <沙箱APPID>
+#       app-private-key: <应用私钥PKCS8>
+#       alipay-public-key: <支付宝公钥>
+#       notify-url: <公网回调地址>/pay/alipay/notify
+#       return-url: <前端回跳地址>
+# 详细步骤见 docs/payment-guide.md
+

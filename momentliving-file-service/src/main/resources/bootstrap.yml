@@ -1,0 +1,18 @@
+# bootstrap.yml —— 最早加载，配置 Nacos 连接信息
+spring:
+  application:
+    name: file-service          # 📌 服务名（与 Nacos 注册名一致）
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848   # ★ 服务注册发现（网关 lb:// 依赖它）
+        namespace: 3ad86f15-1b9c-4576-a3f2-d98780feffdc
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yaml    # ★ 配置文件格式（yaml / properties）
+        namespace: 3ad86f15-1b9c-4576-a3f2-d98780feffdc       # 命名空间（默认 public，也可填 namespace-id）
+        group: DEFAULT_GROUP    # ★ 分组
+        shared-configs:         # 🆕 共享配置（所有服务共用的配置）
+          - data-id: momentliving-common.yaml
+            group: DEFAULT_GROUP
+            refresh: true       # 支持动态刷新

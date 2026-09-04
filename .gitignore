@@ -1,0 +1,65 @@
+# Maven
+**/target/
+
+*.class
+# IDE — IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+*.lst
+# IDE — Eclipse / STS
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# IDE — VS Code
+.vscode/
+
+# IDE — NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# WorkBuddy
+.workbuddy/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# 环境敏感配置（含真实密码，禁止提交！）
+application.yml
+application-dev.yml
+
+# Windows 保留设备名误建文件（git bash 重定向产生，无法正常删除）
+nul
+
+# ========== 前端工程（momentliving-user-frontend / momentliving-admin-web） ==========
+# 依赖目录（几百 MB，绝不入库）
+node_modules/
+# 构建产物（vite 的 dist、uni-app 的 unpackage）
+dist/
+unpackage/
+# HBuilderX 本地配置
+.hbuilderx/
+# 本地环境覆盖文件（.env.local 等）
+*.local
+
+# 本地 AI 工具状态目录
+.zcode/
+
+# 压测数据（含测试 JWT token，禁止入库）
+docs/perf/

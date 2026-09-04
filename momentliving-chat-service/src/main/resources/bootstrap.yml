@@ -1,0 +1,18 @@
+# bootstrap.yml —— 最早加载，配置 Nacos 连接信息（照 voucher-service 骨架）
+spring:
+  application:
+    name: chat-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: 3ad86f15-1b9c-4576-a3f2-d98780feffdc
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yaml
+        namespace: 3ad86f15-1b9c-4576-a3f2-d98780feffdc
+        group: DEFAULT_GROUP
+        shared-configs:         # 数据源/Redis 等公共配置与其他服务同源（momentliving-common.yaml）
+          - data-id: momentliving-common.yaml
+            group: DEFAULT_GROUP
+            refresh: true

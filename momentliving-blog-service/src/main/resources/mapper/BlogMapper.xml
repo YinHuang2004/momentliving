@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.momentliving.mapper.BlogMapper">
+
+    <!-- 点赞数原子增减：liked = liked + delta（delta 传 1 或 -1） -->
+    <update id="updateLiked" parameterType="Map">
+        UPDATE blog
+        SET liked = liked + #{delta}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 按传入 id 顺序查询博客列表 -->
+    <select id="selectBlogsByIds" resultType="Blog">
+        SELECT *
+        FROM blog
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        ORDER BY FIELD(id,
+        <foreach collection="ids" item="id" separator=",">
+            #{id}
+        </foreach>
+        )
+    </select>
+
+</mapper>

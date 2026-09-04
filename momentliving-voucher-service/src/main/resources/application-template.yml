@@ -1,0 +1,71 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: voucher-service
+  # MySQL
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/momentliving?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: # 请填写你的 MySQL 密码
+  # Redis
+  data:
+    redis:
+      host: # 请填写你的 Redis 地址（如 localhost 或 192.168.x.x）
+      port: 6379
+      password: # 请填写你的 Redis 密码（无密码则留空）
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+# MyBatis-Plus
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.momentliving.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+
+# 日志级别
+logging:
+  level:
+    com.momentliving.mapper: debug
+
+# SpringDoc OpenAPI
+springdoc:
+  swagger-ui:
+    path: /doc.html
+
+# JWT（03 章阶段 RefreshTokenInterceptor 仍在本服务解析 JWT，07 章上移到网关后删除）
+momentliving:
+  jwt:
+    secret: # 请填写你的 JWT 密钥
+    access-token-ttl: 30
+    refresh-token-ttl: 7
+    token-name: authorization
+  # 🆕 支付对接（详细开通步骤见 docs/payment-guide.md；建议放 Nacos 共享配置 momentliving-pay.yaml）
+  pay:
+    # 订单超时自动关闭时间（分钟）：MQ 延迟关单 TTL 与定时扫描共用
+    # ⚠️ 修改后需删除 RabbitMQ 里旧的 order.close.delay.queue 队列再重启（队列 TTL 在声明时固定）
+    order-timeout-minutes: 30
+    # 本地演示开关：true 时可用 payType=3 的 mock 收银台（无沙箱也能跑通支付→核销全链路），生产必须 false
+    mock-enabled: true
+    mock-callback-url: http://localhost:8080/pay/mock/notify
+    alipay:
+      # 未申请沙箱时保持 false，走 mock 演示
+      enabled: false
+      # 沙箱网关（正式环境换 https://openapi.alipay.com/gateway.do）
+      gateway: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+      app-id: # 请填写沙箱 APPID
+      app-private-key: # 请填写应用私钥（PKCS8，不带头尾标记）
+      alipay-public-key: # 请填写支付宝公钥（注意不是应用公钥）
+      # 异步通知地址必须公网可达（本地用内网穿透，如 cpolar/natapp）
+      notify-url: # 请填写公网回调地址，如 https://xxx.cpolar.io/pay/alipay/notify
+      return-url: # 支付完成后浏览器跳转地址
+      sign-type: RSA2
+      charset: UTF-8
+      seller-id: # 可选：卖家 PID（回调时校验，防串单；沙箱可不填）

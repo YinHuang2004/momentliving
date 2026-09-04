@@ -1,0 +1,54 @@
+# ============================================================
+# 一刻生活 · Elasticsearch 7.17.18 单机部署（与 momentliving-shop-service 客户端版本严格一致）
+#
+# 用法（在有 Docker 的机器上，于本文件所在目录执行）：
+#   docker network create momentliving-net 2>/dev/null; docker compose up -d
+#   bash setup.sh          # 安装 IK 分词器 + 验证（Windows 无 bash 可用 Git Bash）
+#
+# 部署完成后：
+#   - ES      http://<本机IP>:9200   （shop-service 的 momentliving.elasticsearch.uris 指向它）
+#   - Kibana  http://<本机IP>:5601   （DevTools 里练 DSL，见 23 号文档）
+# ============================================================
+services:
+
+  es:
+    image: elasticsearch:7.17.18
+    container_name: momentliving-es
+    environment:
+      # 单机模式：不找其他节点组集群
+      - discovery.type=single-node
+      # 堆内存 512m 够本项目用；生产按数据量调大（不超过物理内存一半）
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      # 以 root 跑容器时自动修正数据/插件目录属主（虚拟机 root 用户常见报错解法）
+      - TAKE_FILE_OWNERSHIP=1
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+      - es-plugins:/usr/share/elasticsearch/plugins   # IK 分词器装在这里，重启容器不丢
+    ports:
+      - "9200:9200"   # HTTP API（RestHighLevelClient 连这里）
+      - "9300:9300"   # 节点通信（单机用不到，保留习惯）
+    restart: unless-stopped
+    networks:
+      - momentliving-net
+
+  kibana:
+    image: kibana:7.17.18
+    container_name: momentliving-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es:9200   # 容器网络内直接用服务名
+      - I18N_LOCALE=zh-CN                    # 中文界面
+    ports:
+      - "5601:5601"
+    depends_on:
+      - es
+    restart: unless-stopped
+    networks:
+      - momentliving-net
+
+volumes:
+  es-data:
+  es-plugins:
+
+networks:
+  momentliving-net:
+    name: momentliving-net

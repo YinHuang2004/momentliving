@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.momentliving</groupId>
+        <artifactId>momentliving</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>momentliving-pojo</artifactId>
+    <name>momentliving-pojo</name>
+    <description></description>
+
+    <dependencies>
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <!-- MyBatis-Plus 纯注解包（只提供 @TableName/@TableId/@TableField 等实体注解）
+             ⚠️ 不能用 mybatis-plus-spring-boot3-starter：
+             它传递引入 MyBatis + JDBC 自动配置 → 经 momentliving-common 传进 Gateway 后，
+             网关启动会触发 DataSource 自动配置 → "Failed to configure a DataSource" -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-annotation</artifactId>
+        </dependency>
+
+        <!-- ⚠️ 已删除 springdoc-openapi-starter-webmvc-ui：
+             本模块的实体/VO 没有使用 @Schema 注解（swagger 注解实际在各业务服务的 Controller 上），
+             而该 webmvc 依赖会传递引入 spring-webmvc，与 Gateway 的 WebFlux 冲突。 -->
+    </dependencies>
+</project>

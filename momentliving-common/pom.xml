@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.momentliving</groupId>
+        <artifactId>momentliving</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>momentliving-common</artifactId>
+    <name>momentliving-common</name>
+    <description>黑马点评通用模块：常量、工具类、异常、统一返回结果</description>
+
+    <dependencies>
+        <!-- 内部模块：UserHolder 等上下文类需要用到 momentliving-pojo 的 UserVO -->
+        <dependency>
+            <groupId>com.momentliving</groupId>
+            <artifactId>momentliving-pojo</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Hutool -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
+
+        <!-- JWT (Auth0) -->
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+        </dependency>
+
+        <!-- Spring Boot 核心（提供 @Component、@Value、@ConfigurationProperties 等注解支持）
+             ⚠️ 不能引 spring-boot-starter-web：common 是轻量公共模块，web 依赖会随传递依赖进入网关，
+             与 Gateway 的 WebFlux 冲突（@Component/@Value 其实来自 spring-context，不依赖 web） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <!-- MyBatis-Plus（provided：编译 MybatisPlusConfig 需要，运行时由各业务服务提供；
+             网关等无 MP 依赖的服务不会传递引入，配合 @ConditionalOnClass 安全跳过） -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

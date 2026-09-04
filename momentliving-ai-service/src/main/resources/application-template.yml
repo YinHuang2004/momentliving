@@ -1,0 +1,28 @@
+# ============================================================
+# application-template.yml —— 配置模板（复制为环境变量或写入 Nacos，
+# ⚠️ 真实 API Key 不要提交到 Git！）
+# ============================================================
+# 方式二：Nacos 配置中心新建 ai-service.yaml（推荐生产），内容示例：
+#
+# spring:
+#   ai:
+#     openai:
+#       api-key: 真实Key
+#       base-url: https://ark.cn-beijing.volces.com/api/v3
+#       chat:
+#         options:
+#           model: doubao-1-5-pro-32k-250115
+#           temperature: 0.7
+#           max-tokens: 2048
+#       embedding:
+#         options:
+#           model: doubao-embedding
+#
+# 常用供应商 OpenAI 兼容地址对照：
+#   豆包方舟:   https://ark.cn-beijing.volces.com/api/v3
+#   DeepSeek:  https://api.deepseek.com
+#   通义千问:   https://dashscope.aliyuncs.com/compatible-mode/v1
+#   智谱 GLM:  https://open.bigmodel.cn/api/paas/v4
+#
+# 数据库：复用 Nacos momentliving-common.yaml 的 momentliving 主库（AI 表统一 ai_ 前缀），
+# 无需单独建库；建表脚本见 docs/sql/ai_service.sql

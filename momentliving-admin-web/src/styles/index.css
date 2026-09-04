@@ -1,0 +1,68 @@
+/* ========== 一刻生活管理后台 · 设计规范（与 App 统一，见 20 号文档十三节） ========== */
+:root {
+  /* 品牌色：禁止在组件里硬编码，一律用这些变量 */
+  --brand-dark: #4A6B4D;      /* 橄榄深绿：侧边栏 */
+  --brand-primary: #6B8E5A;   /* 抹茶绿：主按钮/选中态 */
+  --brand-accent: #D4A574;    /* 米橘：价格/统计数字 */
+  --brand-bg: #FAF7F0;        /* 米白：内容区背景 */
+  --brand-line: #E8E2D4;      /* 分隔线 */
+  --text-main: #1F2421;
+  --text-sub: #8A8578;
+  --radius: 20px;             /* 卡片圆角 */
+
+  /* Element Plus 主题对齐品牌色 */
+  --el-color-primary: #6B8E5A;
+  --el-color-primary-light-3: #8fac80;
+  --el-color-primary-light-5: #aec6a4;
+  --el-color-primary-light-7: #cfdfd0;
+  --el-color-primary-light-8: #e0ebdc;
+  --el-color-primary-light-9: #eff5ec;
+  --el-color-primary-dark-2: #567248;
+  --el-border-radius-base: 10px;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue',
+    'Source Han Sans SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  color: var(--text-main);
+}
+
+/* 通用卡片 */
+.brand-card {
+  background: #ffffff;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(74, 107, 77, 0.08);
+}
+
+/* 页面通用 */
+.page {
+  padding: 20px;
+}
+.page-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.page-toolbar .grow { flex: 1; }
+
+/* 金额/统计数字统一米橘 */
+.accent-num {
+  color: var(--brand-accent);
+  font-weight: 700;
+}
+
+/* 表格里的缩略图 */
+.cell-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--brand-bg);
+  display: block;
+}

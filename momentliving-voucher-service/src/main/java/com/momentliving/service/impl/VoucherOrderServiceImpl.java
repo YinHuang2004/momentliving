@@ -132,7 +132,7 @@ public class VoucherOrderServiceImpl implements VoucherOrderService {
                     .userId(userId)
                     .voucherId(voucherId)
                     .payType(0)
-                    .status(0)
+                    .status(1)
                     .createTime(LocalDateTime.now())
                     .build();
 

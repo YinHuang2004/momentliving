@@ -31,6 +31,8 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/user/code",
                         "/user/login",
                         "/user/refresh",
+                        // 找回密码（无需登录：邮箱验证码自证身份，网关同步白名单放行）
+                        "/user/password/reset",
                         // 服务间内部接口（Feign 直连不走网关，返回脱敏 UserVO，无需登录态）
                         "/user/feign/**",
                         // 接口文档

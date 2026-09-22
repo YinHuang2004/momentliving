@@ -1,6 +1,8 @@
 package com.momentliving.controller;
 
 import com.momentliving.dto.LoginFormDTO;
+import com.momentliving.dto.PasswordResetDTO;
+import com.momentliving.dto.PasswordUpdateDTO;
 import com.momentliving.context.UserHolder;
 import com.momentliving.entity.UserInfo;
 import com.momentliving.result.Result;
@@ -79,6 +81,31 @@ public class UserController {
     public Result<Void> logout(){
         log.info("用户退出");
         userService.logout();
+        return Result.success();
+    }
+
+    /**
+     * 修改密码（需登录）。
+     * 已设置过密码必须携带原密码；未设置过（纯验证码注册）可不传原密码，本次为首次设置。
+     * 成功后该账号所有设备的登录态被吊销（Redis RefreshToken 删除），
+     * 前端应清空本地 token 并引导重新登录。
+     */
+    @PutMapping("/password")
+    public Result<Void> updatePassword(@RequestBody PasswordUpdateDTO dto) {
+        log.info("用户修改密码");
+        userService.updatePassword(dto);
+        return Result.success();
+    }
+
+    /**
+     * 找回密码（无需登录，网关白名单放行）。
+     * 流程：POST /user/code?email=xxx 发验证码 → 本接口校验验证码并重置密码。
+     * 成功后该账号所有设备登录态被吊销，防止盗号者手里的旧 RefreshToken 继续使用。
+     */
+    @PostMapping("/password/reset")
+    public Result<Void> resetPassword(@RequestBody PasswordResetDTO dto) {
+        log.info("用户找回密码");
+        userService.resetPassword(dto);
         return Result.success();
     }
 

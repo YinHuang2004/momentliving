@@ -1,6 +1,8 @@
 package com.momentliving.service;
 
 import com.momentliving.dto.LoginFormDTO;
+import com.momentliving.dto.PasswordResetDTO;
+import com.momentliving.dto.PasswordUpdateDTO;
 import com.momentliving.entity.User;
 import com.momentliving.entity.UserInfo;
 import com.momentliving.result.Result;
@@ -42,6 +44,19 @@ public interface UserService {
      * 用户退出
      */
     void logout();
+
+    /**
+     * 修改密码（已登录）。
+     * 已设置过密码必须校验原密码；未设置过（纯验证码注册）视为首次设置，不要求原密码。
+     * 成功后删除 Redis 的 RefreshToken（login:refresh:{userId}），该账号全部设备强制下线。
+     */
+    void updatePassword(PasswordUpdateDTO dto);
+
+    /**
+     * 找回密码（无需登录）：校验邮箱验证码后重置密码。
+     * 成功后同样删除 Redis 的 RefreshToken——防止盗号者手里的旧 RefreshToken 继续换新 AccessToken。
+     */
+    void resetPassword(PasswordResetDTO dto);
 
     /**
      * 获取当前登录用户信息

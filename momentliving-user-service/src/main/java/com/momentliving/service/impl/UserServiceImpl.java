@@ -9,6 +9,8 @@ import com.momentliving.constant.RedisConstants;
 import com.momentliving.constant.SystemConstants;
 import com.momentliving.context.UserHolder;
 import com.momentliving.dto.LoginFormDTO;
+import com.momentliving.dto.PasswordResetDTO;
+import com.momentliving.dto.PasswordUpdateDTO;
 import com.momentliving.entity.User;
 import com.momentliving.entity.UserInfo;
 import com.momentliving.exception.BadRequestException;
@@ -33,6 +35,7 @@ import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -60,6 +63,12 @@ public class UserServiceImpl implements UserService {
 
     @Value("${spring.mail.username}")
     private String mailFrom;   // 发件人
+
+    /**
+     * BCrypt 密码编码器（与 merchant/admin 端同一套加密约定）。
+     * 只引入 spring-security-crypto 单包，不含 Security 完整 starter，无自动登录页等副作用。
+     */
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     /**
      * 发送验证码
@@ -266,6 +275,99 @@ public class UserServiceImpl implements UserService {
         UserVO user = UserHolder.getUser();
         stringRedisTemplate.delete(RedisConstants.LOGIN_USER_KEY+user.getId());
 
+    }
+
+    // ========== 密码管理（修改 / 找回） ==========
+
+    /**
+     * 修改密码（已登录）。
+     * <p>安全要点：成功后必须删除 Redis 的 RefreshToken。
+     * RefreshToken 是"短命 AccessToken 的 7 天续命券"，改密码往往意味着用户怀疑账号不安全
+     * （或刚在他人设备上登录过），此时攻击者手里可能还捏着旧 RefreshToken——
+     * 不吊销的话，他仍能在接下来 7 天内无限调 /user/refresh 换新 AccessToken，改密码形同虚设。
+     * <p>本项目的网关对每个请求都会回查 login:refresh:{userId} 是否存在（不存在直接 401），
+     * 所以删掉这一个 key 即可同时废掉所有已签发的 AccessToken，全端立即下线。
+     */
+    @Override
+    public void updatePassword(PasswordUpdateDTO dto) {
+        Long userId = UserHolder.getUser().getId();
+        String newPassword = dto.getNewPassword();
+        // 1. 新密码基础校验（6~32 位，防止空串/超长打爆 BCrypt 与 DB 列）
+        if (StrUtil.isBlank(newPassword) || newPassword.length() < 6 || newPassword.length() > 32) {
+            throw new BadRequestException("新密码长度需在 6~32 位之间");
+        }
+        // 2. 查当前用户，判断是否已设置过密码
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BadRequestException("用户不存在");
+        }
+        if (StrUtil.isNotBlank(user.getPassword())) {
+            // 2.1 已设置过密码：必须提供原密码且校验通过（防止设备被借用时被改密码）
+            if (StrUtil.isBlank(dto.getOldPassword())) {
+                throw new BadRequestException("请输入原密码");
+            }
+            if (!passwordEncoder.matches(dto.getOldPassword(), user.getPassword())) {
+                throw new BadRequestException("原密码错误");
+            }
+        }
+        // 2.2 未设置过密码（纯验证码注册）：本次即"首次设置密码"，无需原密码
+        // 3. 更新密码：只 set id+password 两列，避免 updateById 意外覆盖其他字段
+        User update = new User();
+        update.setId(userId);
+        update.setPassword(passwordEncoder.encode(newPassword));
+        userMapper.updateById(update);
+        // 4. ★ 吊销登录态：删除 Redis RefreshToken，全端（含当前设备）立即下线，
+        //    前端收到本响应后应清空本地 token 并跳转登录页
+        stringRedisTemplate.delete(RedisConstants.LOGIN_USER_KEY + userId);
+        log.info("用户:{} 修改密码成功，已吊销全部登录态", userId);
+    }
+
+    /**
+     * 找回密码（无需登录）：邮箱验证码校验通过后重置密码。
+     * <p>这是账号安全里最敏感的动作——用户走找回流程通常是因为"密码可能已被他人掌握"，
+     * 所以重置成功后必须吊销该账号全部登录态，否则盗号者手里的旧 RefreshToken 依然有效。
+     * <p>时序注意：吊销放在"验证码校验通过、真正重置"这一刻，而不是"发验证码"时，
+     * 否则用户输错验证码就会把自己踢下线。
+     */
+    @Override
+    public void resetPassword(PasswordResetDTO dto) {
+        String email = dto.getEmail();
+        // 1. 参数基础校验
+        if (RegexUtils.isEmailInvalid(email)) {
+            throw new BadRequestException("邮箱格式错误");
+        }
+        if (StrUtil.isBlank(dto.getCode())) {
+            throw new BadRequestException("请输入邮箱验证码");
+        }
+        if (StrUtil.isBlank(dto.getNewPassword()) || dto.getNewPassword().length() < 6
+                || dto.getNewPassword().length() > 32) {
+            throw new BadRequestException("新密码长度需在 6~32 位之间");
+        }
+        // 2. 校验邮箱验证码（复用登录验证码：POST /user/code?email=xxx 发送，2 分钟有效）
+        //    与登录不同：这里"验证码过期"和"验证码错误"都要拦，且先于查用户执行——
+        //    避免攻击者用任意邮箱枚举注册状态
+        String cacheCode = stringRedisTemplate.opsForValue().get(RedisConstants.LOGIN_CODE_KEY + email);
+        if (cacheCode == null) {
+            throw new VerificationCodeException(MessageConstant.VERIFICATION_CODE_EXPIRED);
+        }
+        if (!cacheCode.equals(dto.getCode())) {
+            throw new VerificationCodeException(MessageConstant.VERIFICATION_CODE_ERROR);
+        }
+        // 3. 验证码用后即删（防重放：同一个验证码不允许重置两次密码）
+        stringRedisTemplate.delete(RedisConstants.LOGIN_CODE_KEY + email);
+        // 4. 邮箱必须已注册（找回密码≠登录，不存在自动注册）
+        User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getEmail, email));
+        if (user == null) {
+            throw new BadRequestException("该邮箱尚未注册");
+        }
+        // 5. 重置密码（只更新 password 列）
+        User update = new User();
+        update.setId(user.getId());
+        update.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        userMapper.updateById(update);
+        // 6. ★ 吊销登录态：删 Redis RefreshToken，盗号者手里的旧 token 全部作废
+        stringRedisTemplate.delete(RedisConstants.LOGIN_USER_KEY + user.getId());
+        log.info("邮箱:{} 找回密码成功，已吊销该用户全部登录态", email);
     }
 
     /**

@@ -13,14 +13,14 @@ momentliving/
 ├── momentliving-pojo/               # 实体 / DTO / VO
 ├── momentliving-api/                # Feign 客户端与透传拦截器
 ├── momentliving-user-service/       # 用户服务：登录/资料/足迹/积分（8081）
-├── momentliving-shop-service/       # 店铺服务：缓存/Geo/ES 搜索/评价/收藏（8082）
+├── momentliving-shop-service/       # 店铺服务：缓存/Geo/ES 搜索/评价/收藏（8092）
 ├── momentliving-blog-service/       # 博客服务：笔记/点赞/收藏/关注/Feed 流（8083）
 ├── momentliving-voucher-service/    # 券服务：秒杀(Redis+Lua+MQ)/订单/支付/核销（8084）
 ├── momentliving-file-service/       # 文件服务：阿里云 OSS 统一上传（8086）
 ├── momentliving-admin-service/      # 管理端服务：入驻审核/店铺管理/看板（8089）
 ├── momentliving-merchant-service/   # 商家端服务：商家登录/核销/工作台（8090）
 ├── momentliving-chat-service/       # 聊天服务：WebSocket 单聊/群聊（8091）
-├── momentliving-ai-service/         # AI 服务：智能问答(RAG)/商铺推荐/内容生成/商家分析（8093）
+├── momentliving-ai-py/              # AI 服务（FastAPI）：智能问答(RAG)/商铺推荐/内容生成/商家分析（8093，注册 ai-py-service）
 ├── momentliving-user-frontend/      # 用户端 + 商家端 H5（uni-app + Vue3，一套工程两端页面）
 ├── momentliving-admin-web/          # 管理端 Web（Vue3 + Vite + Element Plus）
 └── docs/                    # 设计文档、变更记录、SQL 迁移脚本、ES 部署脚本
@@ -42,14 +42,14 @@ momentliving/
 |---|---|---|
 | gateway | 8080 | 路由、三模式 JWT 鉴权（用户/管理员/商家）、白名单 |
 | user-service | 8081 | 验证码登录、资料、足迹、每日积分 |
-| shop-service | 8082 | 店铺缓存（逻辑过期+互斥）、Geo 附近店、ES 搜索（降级 MySQL）、评价、店铺收藏 |
+| shop-service | 8092 | 店铺缓存（逻辑过期+互斥）、Geo 附近店、ES 搜索（降级 MySQL）、评价、店铺收藏 |
 | blog-service | 8083 | 探店笔记、点赞（ZSet）、博客收藏、关注/共同关注、推模式 Feed |
 | voucher-service | 8084 | 秒杀（Lua 限购 + Redisson + RabbitMQ 异步落库）、订单、支付宝支付、核销 |
 | file-service | 8086 | OSS 图片上传/删除 |
 | admin-service | 8089 | 入驻/开店审核（Seata 全局事务建店）、运营看板 |
 | merchant-service | 8090 | 商家登录、扫码核销、工作台统计 |
 | chat-service | 8091 | WebSocket 单聊/群聊、博客卡片分享 |
-| ai-service | 8093 | Spring AI 接入（OpenAI 兼容协议）：RAG 知识库问答、SSE 流式对话、商铺推荐、博客/评价生成、商家经营分析 |
+| ai-py-service | 8093 | FastAPI（momentliving-ai-py，替代原 Java ai-service）：RAG 知识库问答、SSE 流式对话、商铺推荐、博客/评价生成、商家经营分析 |
 
 ## 环境依赖
 
@@ -61,7 +61,7 @@ momentliving/
 ## 快速启动
 
 ```bash
-# 后端：IDEA 打开根目录（Maven 自动聚合 13 个模块），或
+# 后端：IDEA 打开根目录（Maven 自动聚合 12 个模块），或
 mvn clean package -DskipTests
 
 # 用户端/商家端 H5

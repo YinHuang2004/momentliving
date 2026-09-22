@@ -35,8 +35,8 @@
         <module>momentliving-file-service</module>
         <!-- 🆕 即时聊天服务（WebSocket 单聊/群聊/首条限制/博客卡片） -->
         <module>momentliving-chat-service</module>
-        <!-- 🆕 AI 助手服务（Spring AI：业务问答/推荐/内容生成/经营分析） -->
-        <module>momentliving-ai-service</module>
+        <!-- ⚠️ AI 服务已迁移至 Python FastAPI（momentliving-ai-py，注册名 ai-py-service），
+             原 Java 版 momentliving-ai-service 已删除，不再聚合 -->
         <!-- 🆕 网关：统一入口 + 路由转发 + JWT 鉴权 -->
         <module>momentliving-gateway</module>
     </modules>

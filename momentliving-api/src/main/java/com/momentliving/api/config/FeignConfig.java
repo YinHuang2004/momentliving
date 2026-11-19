@@ -1,6 +1,7 @@
 package com.momentliving.api.config;
 
 import com.momentliving.api.interceptor.FeignIdentityInterceptor;
+import com.momentliving.properties.InternalAuthProperties;
 import feign.RequestInterceptor;
 import org.springframework.context.annotation.Bean;
 
@@ -11,7 +12,7 @@ import org.springframework.context.annotation.Bean;
  */
 public class FeignConfig {
     @Bean
-    public RequestInterceptor identityInterceptor() {
-        return new FeignIdentityInterceptor();
+    public RequestInterceptor identityInterceptor(InternalAuthProperties properties) {
+        return new FeignIdentityInterceptor(properties);
     }
 }

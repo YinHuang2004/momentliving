@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * 商铺类型实现：列表按 sort 升序；新增时写 cache:shop:type 键（存最新类型 id）
+ */
 @Service
 public class ShopTypeServiceImpl implements ShopTypeService {
 

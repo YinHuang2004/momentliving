@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
+/** 优惠券 Mapper：按 voucher_shop 适用范围查询店铺可用券与适用店铺 */
 @Mapper
 public interface VoucherMapper extends BaseMapper<Voucher> {
 

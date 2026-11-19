@@ -232,7 +232,13 @@ function openForm(row) {
       payYuan: Number(fen2yuan(row.payValue)),
       actualYuan: Number(fen2yuan(row.actualValue)),
       seckill: row.type === 1,
-      stock: row.stock || 100
+      stock: row.stock ?? 100,
+      beginTime: row.beginTime
+        ? dayjs(row.beginTime).format('YYYY-MM-DDTHH:mm:ss')
+        : dayjs().format('YYYY-MM-DDTHH:mm:ss'),
+      endTime: row.endTime
+        ? dayjs(row.endTime).format('YYYY-MM-DDTHH:mm:ss')
+        : dayjs().add(3, 'day').format('YYYY-MM-DDTHH:mm:ss')
     })
   }
   drawerVisible.value = true
@@ -243,6 +249,12 @@ async function save() {
   if (form.scope === 'part' && form.shopIds.length === 0) return ElMessage.warning('请至少选择一家店铺')
   if (form.payYuan <= 0 || form.actualYuan <= 0) return ElMessage.warning('售价/面值需大于 0')
   if (form.actualYuan < form.payYuan) return ElMessage.warning('面值不能低于售价')
+  if (form.seckill) {
+    if (!Number.isInteger(form.stock) || form.stock <= 0) return ElMessage.warning('秒杀库存必须是大于 0 的整数')
+    if (!form.beginTime || !form.endTime) return ElMessage.warning('请填写活动时间')
+    if (!dayjs(form.beginTime).isValid() || !dayjs(form.endTime).isValid()) return ElMessage.warning('活动时间格式不正确')
+    if (!dayjs(form.endTime).isAfter(dayjs(form.beginTime))) return ElMessage.warning('结束时间必须晚于开始时间')
+  }
   saving.value = true
   try {
     const base = {
@@ -257,11 +269,13 @@ async function save() {
       allShop: form.scope === 'all',
       shopIds: form.scope === 'part' ? form.shopIds : undefined
     }
+    const seckillFields = form.seckill
+      ? { stock: form.stock, beginTime: form.beginTime, endTime: form.endTime }
+      : {}
     if (form.id) {
-      await updateVoucher(base)
+      await updateVoucher({ ...base, ...seckillFields })
     } else if (form.seckill) {
-      if (!form.beginTime || !form.endTime) return ElMessage.warning('请填写活动时间')
-      await addSeckillVoucher({ ...base, stock: form.stock, beginTime: form.beginTime, endTime: form.endTime })
+      await addSeckillVoucher({ ...base, ...seckillFields })
     } else {
       await addVoucher(base)
     }

@@ -6,6 +6,9 @@ import com.momentliving.service.UserInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+/**
+ * 用户详情服务实现：user_info 行的插入/更新（upsert）与积分原子累加
+ */
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
 

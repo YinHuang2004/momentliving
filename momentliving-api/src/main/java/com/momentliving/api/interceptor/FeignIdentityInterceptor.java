@@ -3,38 +3,59 @@ package com.momentliving.api.interceptor;
 import com.momentliving.context.AdminHolder;
 import com.momentliving.context.MerchantHolder;
 import com.momentliving.context.UserHolder;
+import com.momentliving.properties.InternalAuthProperties;
+import com.momentliving.security.InternalRequestSigner;
 import com.momentliving.vo.AdminVO;
 import com.momentliving.vo.MerchantVO;
 import com.momentliving.vo.UserVO;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 
-/**
- * 内部调用身份透传：把 ThreadLocal 里的用户/商家/管理员 ID 写进请求头。
- * 下游服务通过 @RequestHeader 或拦截器还原身份（内部网络信任模型，与网关透传 X-User-Id 一致）。
- */
-public class FeignIdentityInterceptor implements RequestInterceptor {
+import java.time.Instant;
+import java.util.UUID;
 
+/** Feign 内部调用透传身份时同时附加 HMAC，避免下游盲目信任身份头。 */
+public class FeignIdentityInterceptor implements RequestInterceptor {
+    private final InternalAuthProperties properties;
+
+    public FeignIdentityInterceptor(InternalAuthProperties properties) {
+        this.properties = properties;
+    }
+
+    /** 把 ThreadLocal 中的用户/商家/管理员身份写入内部请求头,并附时间戳、nonce 与 HMAC 签名;无身份则直接放行 */
     @Override
-    public void apply(RequestTemplate requestTemplate) {
+    public void apply(RequestTemplate template) {
         UserVO user = UserHolder.getUser();
-        if (user != null) {
-            requestTemplate.header("X-User-Id", user.getId().toString());
-        }
         MerchantVO merchant = MerchantHolder.getMerchant();
-        if (merchant != null) {
-            // 商家端服务发起的内部调用（商家核销），下游用 X-Merchant-Id 还原操作人，
-            // 核销记录 voucher_verify.verify_by 记 merchant.id
-            requestTemplate.header("X-Merchant-Id", merchant.getId().toString());
-            // 🆕 商家绑定的店铺 ID：核销时做"券适用范围"校验 + 核销归属回填（全场/多店券记实际核销店铺）
-            if (merchant.getShopId() != null) {
-                requestTemplate.header("X-Merchant-Shop-Id", merchant.getShopId().toString());
-            }
-        }
         AdminVO admin = AdminHolder.getAdmin();
-        if (admin != null) {
-            // 管理员服务发起的内部调用（如审核类），下游用 X-Admin-Id 还原操作人
-            requestTemplate.header("X-Admin-Id", admin.getId().toString());
+
+        String userId = user == null ? null : user.getId().toString();
+        String merchantId = merchant == null ? null : merchant.getId().toString();
+        String merchantShopId = merchant == null || merchant.getShopId() == null
+                ? null : merchant.getShopId().toString();
+        String adminId = admin == null ? null : admin.getId().toString();
+        if (userId == null && merchantId == null && adminId == null) {
+            return;
+        }
+
+        set(template, InternalRequestSigner.USER_ID, userId);
+        set(template, InternalRequestSigner.MERCHANT_ID, merchantId);
+        set(template, InternalRequestSigner.MERCHANT_SHOP_ID, merchantShopId);
+        set(template, InternalRequestSigner.ADMIN_ID, adminId);
+
+        String timestamp = Long.toString(Instant.now().getEpochSecond());
+        String nonce = UUID.randomUUID().toString();
+        String signature = InternalRequestSigner.sign(properties.requiredSecret(), template.method(),
+                template.path(), timestamp, nonce, userId, adminId, merchantId, merchantShopId);
+        set(template, InternalRequestSigner.TIMESTAMP, timestamp);
+        set(template, InternalRequestSigner.NONCE, nonce);
+        set(template, InternalRequestSigner.SIGNATURE, signature);
+    }
+
+    private void set(RequestTemplate template, String name, String value) {
+        template.removeHeader(name);
+        if (value != null) {
+            template.header(name, value);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.momentliving.utils;
 
+/** 常用格式正则常量:手机号/邮箱/密码/验证码 */
 public abstract class RegexPatterns {
     /**
      * 手机号正则

@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+/**
+ * 用户服务全局异常处理：各类异常统一转成 Result JSON 返回，不向前端暴露堆栈
+ */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {

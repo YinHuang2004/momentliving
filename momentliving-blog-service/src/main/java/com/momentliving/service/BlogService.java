@@ -9,8 +9,10 @@ import com.momentliving.vo.UserVO;
 
 import java.util.List;
 
+/** 探店博客业务接口：发布、点赞、收藏、查询与 Feed 流 */
 public interface BlogService {
 
+    /** 发布探店笔记：三重校验（shopId 必填/购买过/店铺存在）后落库，再推送粉丝收件箱 */
     Long saveBlog(BlogDTO blog);
 
     /**
@@ -18,16 +20,22 @@ public interface BlogService {
      */
     List<ShopSimpleVO> purchasableShops();
 
+    /** 点赞/取消点赞（toggle）：双 ZSet 索引 + DB 点赞数原子增减 */
     void likeBlog(Long id);
 
+    /** 某用户的博客列表（分页，时间倒序） */
     List<BlogVO> queryUserBlogs(Long userId, Integer current, Integer pageSize);
 
+    /** 热门博客（按点赞数倒序分页） */
     List<BlogVO> queryHotBlog(Integer current, Integer pageSize);
 
+    /** 博客详情（含作者信息/当前用户点赞/收藏状态） */
     BlogVO queryBlogById(Long id);
 
+    /** 博客的点赞用户列表（按点赞时间正序取前 5） */
     Result<List<UserVO>> queryBlogLikes(Long id);
 
+    /** 关注动态流：Feed 收件箱滚动分页（max=上次最小时间戳，offset=同分偏移） */
     Result<ScrollResult> queryBlogOfFollow(Long max, Integer offset);
 
     /**

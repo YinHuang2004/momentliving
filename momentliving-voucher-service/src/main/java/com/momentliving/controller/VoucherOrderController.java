@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 券订单接口：秒杀/普通下单、取消订单、我的订单与足迹查询
+ */
 @RestController
 @RequestMapping("/voucher-order")
 public class VoucherOrderController {
@@ -31,6 +34,15 @@ public class VoucherOrderController {
     @PostMapping("buy/{id}")
     public Result<Long> buyVoucher(@PathVariable("id") Long voucherId) {
         return voucherOrderService.createBuyOrder(voucherId);
+    }
+
+    /**
+     * 用户取消订单（仅待支付）：立即关单并回补秒杀库存与限购资格，
+     * 与超时关单共用 OrderCloseHandler 同一条链路（锁 + CAS + 双层回补）
+     */
+    @PostMapping("cancel/{id}")
+    public Result<Void> cancelOrder(@PathVariable("id") Long orderId) {
+        return voucherOrderService.cancelOrder(orderId);
     }
 
     /**

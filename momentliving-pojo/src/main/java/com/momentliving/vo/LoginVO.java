@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/** 登录成功返回 VO:双 Token(Access/Refresh) + 用户脱敏信息 */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

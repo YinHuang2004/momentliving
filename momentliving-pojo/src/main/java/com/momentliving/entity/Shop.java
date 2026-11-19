@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/** 店铺实体(表 shop):x/y 为经纬度坐标,支持按类型/名称分页查询 */
 @Data
 @Builder
 @NoArgsConstructor

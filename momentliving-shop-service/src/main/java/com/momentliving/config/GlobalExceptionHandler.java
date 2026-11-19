@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+/**
+ * 全局异常处理：业务异常返回具体信息，参数类异常返回 400/405，其余兜底为统一提示
+ */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {

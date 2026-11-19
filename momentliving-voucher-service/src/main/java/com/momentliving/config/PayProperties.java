@@ -45,7 +45,7 @@ public class PayProperties {
     public static class Alipay {
         /** 是否启用支付宝渠道（未申请沙箱时关闭，避免 SDK 报无效网关） */
         private boolean enabled = false;
-        /** 支付宝网关：沙箱 https://openapi-sandbox.dl.alipaydev.com/gateway.do，正式 https://openapi.alipay.com/gateway.do */
+        /** 支付宝沙箱网关：https://openapi-sandbox.dl.alipaydev.com/gateway.do */
         private String gateway;
         private String appId;
         /** 应用私钥（PKCS8 格式，不带头尾标记的纯文本） */

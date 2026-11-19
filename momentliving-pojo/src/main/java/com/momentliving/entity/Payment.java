@@ -36,7 +36,7 @@ public class Payment implements Serializable {
     /** 支付金额（元） */
     private BigDecimal amount;
 
-    /** 支付方式：1微信 2支付宝 */
+    /** 支付方式：2支付宝，3 Mock 演示 */
     private Integer payType;
 
     /** 状态：0待支付 1已支付 2已退款 3支付失败 */

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "momentliving.jwt")
 @Data
+/** JWT 配置属性(前缀 momentliving.jwt):签名密钥、双 Token 有效期、请求头名称 */
 public class JwtProperties {
 
     /**

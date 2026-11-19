@@ -35,8 +35,9 @@
         <module>momentliving-file-service</module>
         <!-- 🆕 即时聊天服务（WebSocket 单聊/群聊/首条限制/博客卡片） -->
         <module>momentliving-chat-service</module>
-        <!-- ⚠️ AI 服务已迁移至 Python FastAPI（momentliving-ai-py，注册名 ai-py-service），
-             原 Java 版 momentliving-ai-service 已删除，不再聚合 -->
+        <!-- 🆕 AI 服务（Spring AI 1.1 + Spring AI Alibaba 1.1.2：ChatClient/Advisor/工具调用/RAG）。
+             ⚠️ 本模块单独升 Boot 3.5（见其 pom 内 dependencyManagement），其余模块保持 3.2.5 -->
+        <module>momentliving-ai-service</module>
         <!-- 🆕 网关：统一入口 + 路由转发 + JWT 鉴权 -->
         <module>momentliving-gateway</module>
     </modules>
@@ -52,11 +53,8 @@
         <!-- 🆕 微服务：Spring Cloud & Alibaba 版本（对应 Spring Boot 3.2.x） -->
         <spring-cloud.version>2023.0.1</spring-cloud.version>
         <spring-cloud-alibaba.version>2023.0.1.0</spring-cloud-alibaba.version>
-        <!-- 🆕 支付对接：支付宝官方 SDK（沙箱）/ 微信支付 APIv3 SDK（商户号预留） -->
+        <!-- 支付对接：支付宝官方 SDK（沙箱）；本地开发另用项目内置 Mock 渠道 -->
         <alipay-sdk.version>4.40.978.ALL</alipay-sdk.version>
-        <wechatpay-java.version>0.2.17</wechatpay-java.version>
-        <!-- 🆕 Spring AI（里程碑版，需 spring-milestones 仓库；与 Spring Boot 3.2.x 兼容） -->
-        <spring-ai.version>1.0.0-M6</spring-ai.version>
     </properties>
 
     <dependencyManagement>
@@ -77,22 +75,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- 🆕 Spring AI BOM：统一管理 ChatClient/OpenAI starter/嵌入模型版本 -->
-            <dependency>
-                <groupId>org.springframework.ai</groupId>
-                <artifactId>spring-ai-bom</artifactId>
-                <version>${spring-ai.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!-- 🆕 显式钉住 core 版本：spring-cloud-alibaba BOM 自带 spring-ai-core 0.8.1 的管理
-                 （供它的 ai 模块用），会覆盖 spring-ai-bom 的版本导致解析失败，这里纠正 -->
-            <dependency>
-                <groupId>org.springframework.ai</groupId>
-                <artifactId>spring-ai-core</artifactId>
-                <version>${spring-ai.version}</version>
-            </dependency>
-
             <!-- 内部模块 -->
             <dependency>
                 <groupId>com.momentliving</groupId>
@@ -166,36 +148,8 @@
                 <artifactId>alipay-sdk-java</artifactId>
                 <version>${alipay-sdk.version}</version>
             </dependency>
-            <!-- 🆕 微信支付 APIv3 官方 SDK（商户号参数预留，未配置不启用） -->
-            <dependency>
-                <groupId>com.github.wechatpay-apiv3</groupId>
-                <artifactId>wechatpay-java</artifactId>
-                <version>${wechatpay-java.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <!-- 🆕 Spring AI 里程碑版（M6）托管在 Spring 官方里程碑仓库，正式仓库没有 -->
-    <repositories>
-        <repository>
-            <id>spring-milestones</id>
-            <name>Spring Milestones</name>
-            <url>https://repo.spring.io/milestone</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>spring-milestones</id>
-            <name>Spring Milestones</name>
-            <url>https://repo.spring.io/milestone</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
 
     <!-- 在子模块中实际引入依赖 -->
     <dependencies>

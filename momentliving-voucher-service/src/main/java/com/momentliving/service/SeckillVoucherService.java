@@ -2,6 +2,7 @@ package com.momentliving.service;
 
 import com.momentliving.entity.SeckillVoucher;
 
+/** 秒杀券信息服务：秒杀信息增删改查与 DB 条件扣库存 */
 public interface SeckillVoucherService {
 
     void save(SeckillVoucher seckillVoucher);
@@ -15,5 +16,6 @@ public interface SeckillVoucherService {
      */
     void deleteByVoucherId(Long voucherId);
 
+    /** 条件扣库存（stock>0 才减），返回受影响行数，0 = 售罄 */
     int deductStock(Long voucherId);
 }

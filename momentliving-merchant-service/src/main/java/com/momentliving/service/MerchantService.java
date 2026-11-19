@@ -5,6 +5,9 @@ import com.momentliving.dto.MerchantUpdateDTO;
 import com.momentliving.result.Result;
 import com.momentliving.vo.MerchantVO;
 
+/**
+ * 商家账号服务：登录（BCrypt + JWT）、退出、当前信息、资料修改；登录态存 Redis login:merchant:{id}
+ */
 public interface MerchantService {
 
     /** 商家登录：用户名+密码（BCrypt），登录态存 login:merchant:{id} */

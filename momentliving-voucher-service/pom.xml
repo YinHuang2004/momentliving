@@ -15,6 +15,11 @@
     <description>秒杀服务：优惠券秒杀、订单、库存扣减</description>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- 内部模块 -->
         <dependency>
             <groupId>com.momentliving</groupId>
@@ -66,14 +71,10 @@
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
 
-        <!-- 🆕 支付对接：支付宝官方 SDK（沙箱环境）+ 微信支付 APIv3（预留） -->
+        <!-- 支付对接：支付宝官方 SDK（沙箱环境）；Mock 渠道不需要第三方 SDK -->
         <dependency>
             <groupId>com.alipay.sdk</groupId>
             <artifactId>alipay-sdk-java</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.wechatpay-apiv3</groupId>
-            <artifactId>wechatpay-java</artifactId>
         </dependency>
 
         <!-- 配置处理器：为 @ConfigurationProperties 生成元数据 -->

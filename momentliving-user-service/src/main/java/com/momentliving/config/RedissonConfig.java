@@ -9,6 +9,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Redisson 客户端配置：绑定 spring.data.redis 配置并创建单机模式客户端
+ */
 @Configuration
 @ConfigurationProperties(prefix = "spring.data.redis")
 @Data
@@ -19,6 +22,9 @@ public class RedissonConfig {
     private int port;
     private String password;
 
+    /**
+     * 创建单机模式 Redisson 客户端（连接池 5~10，地址/密码取自上方绑定的配置）
+     */
     @Bean
     public RedissonClient redissonClient() {
         Config config = new Config();

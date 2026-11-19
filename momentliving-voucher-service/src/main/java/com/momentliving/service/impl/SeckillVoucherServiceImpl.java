@@ -7,6 +7,7 @@ import com.momentliving.service.SeckillVoucherService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+/** 秒杀券信息实现：纯 MyBatis-Plus 增删改查与 DB 条件扣库存委托 */
 @Service
 public class SeckillVoucherServiceImpl implements SeckillVoucherService {
 

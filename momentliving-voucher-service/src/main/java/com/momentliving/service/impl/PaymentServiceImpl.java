@@ -12,6 +12,7 @@ import com.momentliving.mapper.PaymentMapper;
 import com.momentliving.mapper.VoucherMapper;
 import com.momentliving.mapper.VoucherOrderMapper;
 import com.momentliving.pay.AliPayProvider;
+import com.momentliving.pay.MockPayProvider;
 import com.momentliving.pay.PayProvider;
 import com.momentliving.result.Result;
 import com.momentliving.service.PaymentService;
@@ -54,7 +55,7 @@ public class PaymentServiceImpl implements PaymentService {
     private PaymentMapper paymentMapper;
     @Resource
     private VerifyService verifyService;
-    /** Spring 注入所有 PayProvider 实现（AliPay/WechatPay/Mock），按 payType 路由 */
+    /** Spring 注入支付宝与 Mock 两种 PayProvider，按 payType 路由 */
     @Resource
     private List<PayProvider> providers;
 
@@ -63,7 +64,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public Result<PayOrderVO> createPayment(Long orderId, Integer payType) {
         Long userId = UserHolder.getUser().getId();
-        if (payType == null || payType < 1 || payType > 3) {
+        if (payType == null || (payType != AliPayProvider.PAY_TYPE_ALIPAY
+                && payType != MockPayProvider.PAY_TYPE_MOCK)) {
             throw new BadRequestException("不支持的支付方式");
         }
         VoucherOrder order = voucherOrderMapper.selectById(orderId);
@@ -98,6 +100,12 @@ public class PaymentServiceImpl implements PaymentService {
             } catch (DuplicateKeyException e) {
                 log.info("支付流水并发插入冲突，复用已有流水，orderId={}", orderId);
             }
+        } else if (payment.getStatus() != null && payment.getStatus() == 3) {
+            // 上次"取消支付"留下的失败流水：重开为待支付。
+            // 若不重开，本次支付成功后回调的 casMarkSuccess(0→1) 匹配不到 rows=0 且状态≠1，
+            // 会返回 failure 让渠道无限重试——钱到账了订单却永不流转（资损事故）
+            paymentMapper.casReopen(orderId);
+            log.info("取消支付后的失败流水重开为待支付，orderId={}", orderId);
         }
 
         String payContent = provider.prepay(order, amount, subject);
@@ -171,6 +179,31 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
+    public Result<Void> cancelPayment(Long orderId) {
+        Long userId = UserHolder.getUser().getId();
+        VoucherOrder order = voucherOrderMapper.selectById(orderId);
+        if (order == null || !order.getUserId().equals(userId)) {
+            throw new BadRequestException("订单不存在");
+        }
+        int status = order.getStatus() == null ? -1 : order.getStatus();
+        if (status == OrderStatus.PAID) {
+            throw new BadRequestException("订单已支付，如需取消请申请退款");
+        }
+        if (status != OrderStatus.PENDING_PAY) {
+            throw new BadRequestException("当前订单状态无需取消支付");
+        }
+        // 仅将待支付流水置为失败（0→3）；尚未发起过支付（无流水/已失败）直接视为取消成功。
+        // 关键：不动订单状态、不动秒杀库存——订单依然有效，30 分钟内可重新发起支付；
+        // 若一直未支付，由 TTL 死信 + 定时扫描双保险自动关单并回补库存（见 OrderCloseHandler）
+        int rows = paymentMapper.casMarkFailed(orderId);
+        if (rows > 0) {
+            log.info("用户取消支付，流水置为失败，orderId={}", orderId);
+        }
+        return Result.success();
+    }
+
+    @Override
+    @Transactional
     public Result<Void> refund(Long orderId) {
         Long userId = UserHolder.getUser().getId();
         VoucherOrder order = voucherOrderMapper.selectById(orderId);
@@ -220,6 +253,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     // ==================== 私有工具 ====================
 
+    /** 查券应付金额：pay_value 为「分」，转成元的两位小数 */
     private BigDecimal loadAmountYuan(Long voucherId) {
         Voucher voucher = voucherMapper.selectById(voucherId);
         if (voucher == null || voucher.getPayValue() == null) {

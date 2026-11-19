@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 /**
- * 支付宝渠道实现（官方 SDK，沙箱/正式由 gateway 配置切换）
+ * 支付宝沙箱渠道实现（官方 SDK）
  *
  * <p>对接的接口：
  * <ul>

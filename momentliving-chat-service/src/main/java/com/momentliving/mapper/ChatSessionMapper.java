@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
+/** 会话表 Mapper：首条限制状态机的 CAS 翻转、发起方修正与会话预览刷新 */
 @Mapper
 public interface ChatSessionMapper extends BaseMapper<ChatSession> {
 

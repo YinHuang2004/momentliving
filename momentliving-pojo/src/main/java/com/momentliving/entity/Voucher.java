@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/** 优惠券主实体(表 voucher):payValue/actualValue 单位为分,type 0 普通券 1 秒杀券 */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)

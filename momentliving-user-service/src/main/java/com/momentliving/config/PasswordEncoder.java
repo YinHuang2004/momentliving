@@ -7,6 +7,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
+/**
+ * 密码加密配置：注册 BCryptPasswordEncoder Bean（强度 10，本项目密码加密/校验的实际实现见 UserServiceImpl）
+ */
 @Configuration
 public class PasswordEncoder {
     @Bean

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/** 关注关系接口：关注/取关、关注/粉丝列表、统计、共同关注 */
 @RestController
 @RequestMapping("/follow")
 public class FollowController {

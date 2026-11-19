@@ -1,19 +1,34 @@
+# Data ID: momentliving-common.yaml
+# 只提交占位符，真实密码和密钥填在 Nacos 或环境变量中。
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3306/momentliving?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai}
+    username: ${MYSQL_USERNAME:momentliving}
+    password: ${MYSQL_PASSWORD}
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.momentliving.entity
+  configuration:
+    map-underscore-to-camel-case: true
 
-# ---------- Data ID: momentliving-pay.yaml (可选：支付配置单独一个 Data ID) ----------
-# 装载方式：voucher-service 的 bootstrap.yml shared-configs 追加该 Data ID，
-# 或直接并进 momentliving-common.yaml（支付参数只有 voucher-service 读，放一起也无害）
-#
-# momentliving:
-#   pay:
-#     order-timeout-minutes: 30
-#     mock-enabled: false          # 本地演示 true；生产必须 false
-#     alipay:
-#       enabled: true
-#       gateway: https://openapi-sandbox.dl.alipaydev.com/gateway.do
-#       app-id: <沙箱APPID>
-#       app-private-key: <应用私钥PKCS8>
-#       alipay-public-key: <支付宝公钥>
-#       notify-url: <公网回调地址>/pay/alipay/notify
-#       return-url: <前端回跳地址>
-# 详细步骤见 docs/payment-guide.md
-
+momentliving:
+  jwt:
+    secret: ${JWT_SECRET}
+    access-token-ttl: 30
+    refresh-token-ttl: 7
+    token-name: authorization
+  internal-auth:
+    enabled: true
+    secret: ${INTERNAL_AUTH_SECRET}
+    max-clock-skew-seconds: 60

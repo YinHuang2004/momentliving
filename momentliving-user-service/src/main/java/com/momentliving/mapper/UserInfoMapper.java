@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
+/** user_info 表 Mapper（用户详情与积分），含积分原子累加 SQL */
 @Mapper
 public interface UserInfoMapper extends BaseMapper<UserInfo> {
 

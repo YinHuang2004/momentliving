@@ -67,6 +67,7 @@ public class MerchantAuthInterceptor implements HandlerInterceptor {
         MerchantHolder.removeMerchant();
     }
 
+    /** 校验不通过：直接写 401 + JSON 错误体并终止请求 */
     private boolean unauthorized(HttpServletResponse response, String message) {
         response.setStatus(401);
         response.setContentType("application/json;charset=UTF-8");

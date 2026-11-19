@@ -20,11 +20,23 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
         </dependency>
+        <!-- Nacos 配置中心：读取 bootstrap.yml 中的 shared-configs -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
 
         <!-- Nacos 服务发现：从 Nacos 拉取下游服务列表，供 lb:// 路由解析 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+
+        <!-- 启用 bootstrap.yml（Spring Boot 3 默认关闭 bootstrap 上下文，缺了它
+             服务名/Nacos 地址/命名空间全部读不到 → lb:// 找不到实例 → 全部 503） -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
         </dependency>
 
         <!-- LoadBalancer（Spring Cloud 2021+ 需显式引入）：lb:// 负载均衡 -->

@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/** 关注业务实现：以 DB 为准做 toggle，Redis Set 作关注列表缓存，共同关注走交集 + DB 预热兜底 */
 @Service
 public class FollowServiceImpl implements FollowService {
     @Resource

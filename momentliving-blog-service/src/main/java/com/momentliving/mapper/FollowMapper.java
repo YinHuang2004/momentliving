@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/** 关注关系表 Mapper */
 @Mapper
 public interface FollowMapper extends BaseMapper<Follow> {
 

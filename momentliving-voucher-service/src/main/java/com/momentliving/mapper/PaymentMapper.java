@@ -28,4 +28,8 @@ public interface PaymentMapper extends BaseMapper<Payment> {
     /** 置为支付失败（长期未付被关单时由对账逻辑使用）：待支付(0) → 支付失败(3) */
     @Update("update payment set status = 3 where order_id = #{orderId} and status = 0")
     int casMarkFailed(Long orderId);
+
+    /** 重开支付流水（用户取消支付后重新发起支付时）：支付失败(3) → 待支付(0)，保证回调 CAS 能命中 */
+    @Update("update payment set status = 0 where order_id = #{orderId} and status = 3")
+    int casReopen(Long orderId);
 }

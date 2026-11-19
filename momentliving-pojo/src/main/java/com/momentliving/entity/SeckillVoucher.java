@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/** 秒杀券实体:与 voucher 一对一,存储秒杀库存与开抢起止时间 */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)

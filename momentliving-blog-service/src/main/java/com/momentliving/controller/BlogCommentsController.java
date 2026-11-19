@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/** 博客评论接口：发表/详情/分页列表/删除 */
 @RestController
 @RequestMapping("/blog-comments")
 public class BlogCommentsController {

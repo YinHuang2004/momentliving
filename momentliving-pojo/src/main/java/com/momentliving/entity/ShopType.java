@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/** 店铺分类实体(表 shop_type):美食/KTV 等分类,sort 控制展示顺序 */
 @Data
 @Builder
 @NoArgsConstructor

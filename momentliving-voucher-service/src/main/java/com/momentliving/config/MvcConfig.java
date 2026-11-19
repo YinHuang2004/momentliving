@@ -7,6 +7,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * MVC 拦截器装配：先解析用户上下文（order 0），再做登录校验（order 1）
+ */
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
 

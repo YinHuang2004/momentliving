@@ -8,6 +8,9 @@ import lombok.Data;
         import org.springframework.context.annotation.Bean;
         import org.springframework.context.annotation.Configuration;
 
+/**
+ * Redisson 客户端配置：复用 spring.data.redis 连接信息，供分布式锁与布隆过滤器使用
+ */
 @Configuration
 @ConfigurationProperties(prefix = "spring.data.redis")
 @Data

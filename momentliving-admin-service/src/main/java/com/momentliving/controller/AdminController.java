@@ -8,6 +8,9 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 管理端登录态接口：登录/退出/当前管理员信息（/admin/** 由 AdminAuthInterceptor 鉴权）
+ */
 @RestController
 @RequestMapping("/admin")
 @Slf4j

@@ -35,7 +35,7 @@ export const listMyOrders = ({ current = 1, pageSize = 10, status } = {}) =>
 export const userFootprint = (userId, current = 1, pageSize = 10) =>
   get(`/api/voucher-order/of/user/${userId}`, { current, pageSize })
 
-/** 发起支付（payType：1微信未开通 2支付宝 3模拟），返回 PayOrderVO */
+/** 发起支付（payType：2支付宝沙箱，3模拟），返回 PayOrderVO */
 export const createPay = (orderId, payType) =>
   post(`/api/pay/create/${orderId}?payType=${payType}`)
 
@@ -44,3 +44,15 @@ export const payStatus = (orderId) => get(`/api/pay/status/${orderId}`)
 
 /** 申请退款（仅限已支付未核销订单） */
 export const refund = (orderId) => post(`/api/pay/refund/${orderId}`)
+
+/**
+ * 取消支付（支付页点 X / 返回离开时调用）：POST /api/pay/cancel/{orderId}
+ * 仅将待支付流水置为失败；订单保持待支付，30 分钟内可重新发起支付，库存不回补
+ */
+export const cancelPay = (orderId) => post(`/api/pay/cancel/${orderId}`)
+
+/**
+ * 取消订单（仅待支付）：POST /api/voucher-order/cancel/{orderId}
+ * 立即关单并回补秒杀库存与限购资格（与超时关单同一条后端链路）
+ */
+export const cancelOrder = (orderId) => post(`/api/voucher-order/cancel/${orderId}`)

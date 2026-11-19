@@ -6,12 +6,12 @@ import com.momentliving.exception.PayException;
 import java.math.BigDecimal;
 
 /**
- * 支付渠道 SPI：每种渠道一个实现（支付宝/微信/mock），由 {@code PaymentServiceImpl} 按 payType 路由。
+ * 支付渠道 SPI：当前提供支付宝沙箱与 Mock 实现，由 {@code PaymentServiceImpl} 按 payType 路由。
  * prepay 返回值约定见 {@link com.momentliving.vo.PayOrderVO#getPayContent()}。
  */
 public interface PayProvider {
 
-    /** 本实现支持的支付方式：1微信 2支付宝 3mock */
+    /** 本实现支持的支付方式：2支付宝，3 Mock。保留历史编号，避免已有支付数据不兼容。 */
     int supportPayType();
 
     /**

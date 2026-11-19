@@ -22,6 +22,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
+/**
+ * 管理员登录实现：BCrypt 校验密码，签发 JWT 并把登录态写入 Redis login:admin:{id}
+ */
 @Service
 @Slf4j
 public class AdminServiceImpl implements AdminService {

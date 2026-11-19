@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/** 用户实体(表 user):手机/邮箱验证码登录,密码可选(BCrypt,未设置表示纯验证码用户) */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

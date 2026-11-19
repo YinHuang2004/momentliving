@@ -41,6 +41,7 @@ public class MerchantShopApplyController {
         return merchantShopApplyService.listMine(currentMerchantId());
     }
 
+    /** 从登录态取当前商家 id（未登录抛业务异常） */
     private Long currentMerchantId() {
         MerchantVO merchant = MerchantHolder.getMerchant();
         if (merchant == null) {

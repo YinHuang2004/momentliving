@@ -15,6 +15,7 @@ import com.momentliving.vo.UserVO;
 import java.util.List;
 import java.util.Map;
 
+/** 用户账号服务：验证码登录、双 Token 签发/刷新/吊销、密码管理、签到、每日积分与足迹设置 */
 public interface UserService {
 
     /**
@@ -84,8 +85,14 @@ public interface UserService {
      */
     Result<List<UserVO>> feignSearchUsers(String keyword);
 
+    /**
+     * 每日签到（Redis Bitmap，按月一个 key）
+     */
     Result<Void> sign();
 
+    /**
+     * 查询本月连续签到天数
+     */
     Result<Integer> signCount();
 
     /**

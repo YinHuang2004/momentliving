@@ -1,6 +1,6 @@
 <template>
   <view class="pay-confirm">
-    <NavBar title="确认支付" class="page-nav" />
+    <NavBar title="确认支付" class="page-nav" @back="handleLeavePayPage" />
     <template v-if="order">
     <!-- 到期提示 -->
     <view class="pay-confirm__expire">
@@ -42,11 +42,13 @@
 </template>
 
 <script>
-import { getOrder, getVoucher, createPay, payStatus } from '@/api/voucher.js'
+import { getOrder, getVoucher, createPay, payStatus, cancelPay } from '@/api/voucher.js'
 
 /**
- * 支付确认页：支付方式单选（支付宝=2 / 模拟支付=3；微信=1 后端未开通）
+ * 支付确认页：支付方式单选（支付宝沙箱=2 / 模拟支付=3）
  * 发起支付后轮询 pay/status 直到已支付，然后跳订单详情看核销码
+ * 点 X / 返回离开时调用 cancelPay 把待支付流水置为失败
+ * （订单保持待支付，30 分钟内可重新支付；超时由后端双保险自动关单回补库存）
  */
 import NavBar from '@/components/NavBar.vue'
 export default {
@@ -57,8 +59,8 @@ export default {
       voucher: null,
       payType: 3, // 默认模拟支付，演示环境可直接跑通
       paying: false,
+      payStarted: false, // 是否点过"确认支付"（有流水才需要取消支付）
       payWays: [
-        { type: 1, name: '微信支付', disabled: true, tag: '未开通' },
         { type: 2, name: '支付宝', disabled: false, tag: '沙箱' },
         { type: 3, name: '模拟支付', disabled: false, tag: '演示' }
       ]
@@ -127,12 +129,32 @@ export default {
     async handlePay() {
       if (this.paying) return
       this.paying = true
+      this.payStarted = true // 标记已发起过支付：离开页面时需要调取消支付接口
       try {
         await createPay(this.order.id, this.payType)
         uni.showLoading({ title: '支付确认中…' })
         this.startPolling()
       } catch (e) {
         this.paying = false
+      }
+    },
+    /**
+     * 点 X / 返回离开支付页：把待支付流水置为失败（取消支付）。
+     * 库存不回补——订单仍然有效，30 分钟内回来可重新支付；
+     * 未点过支付按钮（无流水）时不发请求，直接离开。
+     */
+    async handleLeavePayPage() {
+      if (this._leaveHandled) return
+      this._leaveHandled = true
+      this.stopPolling()
+      uni.hideLoading()
+      if (this.payStarted) {
+        try {
+          await cancelPay(this.order.id)
+          uni.showToast({ title: '已取消支付，订单30分钟内保留', icon: 'none' })
+        } catch (e) {
+          // 取消失败静默：订单超时后由后端关单双保险兜底
+        }
       }
     },
     // 每 2s 轮询支付状态，最长 60s

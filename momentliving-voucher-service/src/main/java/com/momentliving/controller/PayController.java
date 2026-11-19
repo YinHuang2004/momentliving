@@ -21,7 +21,7 @@ public class PayController {
     /**
      * 发起支付
      *
-     * @param payType 支付方式：1微信（未开通） 2支付宝 3mock 演示（需开启 momentliving.pay.mock-enabled）
+     * @param payType 支付方式：2支付宝沙箱，3 Mock 演示（需开启 momentliving.pay.mock-enabled）
      * @return payContent：支付宝渠道为自动提交 form HTML，mock 渠道为演示页 HTML
      */
     @PostMapping("/create/{orderId}")
@@ -37,6 +37,16 @@ public class PayController {
     @GetMapping("/status/{orderId}")
     public Result<Map<String, Object>> queryPayStatus(@PathVariable("orderId") Long orderId) {
         return paymentService.queryPayStatus(orderId);
+    }
+
+    /**
+     * 取消支付（支付确认页点 X / 返回离开时调用）
+     * 仅将待支付流水置为支付失败；订单保持待支付，30 分钟内可重新发起支付；
+     * 超时未付由 TTL 死信 + 定时扫描双保险自动关单并回补秒杀库存
+     */
+    @PostMapping("/cancel/{orderId}")
+    public Result<Void> cancelPayment(@PathVariable("orderId") Long orderId) {
+        return paymentService.cancelPayment(orderId);
     }
 
     /**

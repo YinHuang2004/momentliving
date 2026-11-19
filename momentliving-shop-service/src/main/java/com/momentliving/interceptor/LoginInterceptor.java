@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+/**
+ * 登录校验拦截器：ThreadLocal 中无用户则返回 401，兜底防绕过网关直连
+ */
 @Component
 public class LoginInterceptor implements HandlerInterceptor {
 

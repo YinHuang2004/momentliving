@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 用户接口：验证码/登录/双 Token 刷新、密码管理、资料与头像、签到、每日积分、足迹设置
+ */
 @RestController
 @Slf4j
 @RequestMapping("/user")

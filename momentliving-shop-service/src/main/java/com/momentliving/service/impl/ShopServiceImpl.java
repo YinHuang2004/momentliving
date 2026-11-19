@@ -44,6 +44,10 @@ import java.util.stream.Collectors;
 
 import static com.baomidou.mybatisplus.core.toolkit.Wrappers.query;
 
+/**
+ * 店铺核心业务：逻辑过期缓存（互斥锁重建 + 空值防穿透 + 布隆拦截）、GEO 附近店铺、
+ * 收藏、名称搜索（ES 优先、MySQL like 降级）
+ */
 @Slf4j
 @Service
 public class ShopServiceImpl implements ShopService {
@@ -79,6 +83,7 @@ public class ShopServiceImpl implements ShopService {
         if (StrUtil.isBlank(redisDataJson)) {
             return buildCacheAndReturn(id, key);
         }
+
         //缓存命中
         //需要判断缓存是否过期
         RedisData<Shop> redisData = JSONUtil.toBean(redisDataJson, new TypeReference<RedisData<Shop>>() {},false);
@@ -128,8 +133,16 @@ public class ShopServiceImpl implements ShopService {
     }
     /**
      * 缓存未命中时：同步查DB重建缓存，只需要一个线程去重建缓存（兜底物理删除/新增/冷数据场景）
+     * 缓存未命中时，同步去查数据库重建缓存，通过redis的setnx来实现一个线程去查询数据库后重建缓存，如果数据库中不存在则使用空值缓存作为兜底，如果存在则缓存重建
+     * 如何保证锁的释放：finally语句里面
      */
     private ShopVO buildCacheAndReturn(Long id, String key) {
+        String redisDataJson = stringRedisTemplate.opsForValue().get(key);
+        if ("".equals(redisDataJson)) {
+            // 命中空值缓存（防穿透兜底写入的空串），直接抛异常，不再查 DB
+            // 注意常量在前：redisDataJson 可能为 null（真未命中），redisDataJson.equals("") 会 NPE
+            throw new BadRequestException(MessageConstant.SHOP_NOT_EXIST);
+        }
         String lockKey = RedisConstants.LOCK_SHOP_KEY + id;
         boolean isLock = false;
         try {
@@ -143,6 +156,7 @@ public class ShopServiceImpl implements ShopService {
             Shop shop = shopMapper.selectById(id);
             if (Objects.isNull(shop)) {
                 // DB不存在：缓存空值5分钟防穿透
+
                 stringRedisTemplate.opsForValue().set(key, "", 5, TimeUnit.MINUTES);
                 throw new BadRequestException(MessageConstant.SHOP_NOT_EXIST);
             }
@@ -168,7 +182,7 @@ public class ShopServiceImpl implements ShopService {
         Shop shop = shopMapper.selectById(id);
         //封装逻辑过期时间
         RedisData<Shop> redisData=RedisData.<Shop>builder().data(shop).expireTime(LocalDateTime.now().plusSeconds(logicExpireSeconds)).build();
-        // 物理TTL = 逻辑过期时间 + 10~30分钟随机，保证逻辑过期时key还在
+        // 物理TTL = 逻辑过期时间 + 10~30分钟随机，保证逻辑过期时key还在防止缓存穿透
         long physicalTtl = logicExpireSeconds + (600 + ThreadLocalRandom.current().nextInt(1200));
         //写入redis
         stringRedisTemplate.opsForValue().set(RedisConstants.CACHE_SHOP_KEY+id,JSONUtil.toJsonStr(redisData),physicalTtl,TimeUnit.SECONDS);
@@ -243,6 +257,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     public Boolean isFavoriteShop(Long shopId) {
+        // /shop/** 查询接口公开可能未登录：无用户态直接 false，不抛 401
         UserVO user = UserHolder.getUser();
         if (user == null) {
             return false;
@@ -275,6 +290,10 @@ public class ShopServiceImpl implements ShopService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 按类型分页查店铺：坐标+类型齐全走 Redis GEOSEARCH 按距离排序（附近店铺），
+     * 否则退回 MySQL 分页（typeId 可选过滤）
+     */
     @Override
     public Result<List<ShopVO>> queryShopByType(ShopQueryDTO query) {
         Integer typeId = query.getTypeId();

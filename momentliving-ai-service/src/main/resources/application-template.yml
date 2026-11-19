@@ -1,0 +1,73 @@
+server:
+  port: ${AI_SERVER_PORT:8094}
+  servlet:
+    async:
+      wait-for-tasks: true
+
+spring:
+  application:
+    name: ai-service
+  config:
+    import:
+      - optional:nacos:${spring.application.name}.yaml?group=${NACOS_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+  mvc:
+    async:
+      request-timeout: 120000
+  cloud:
+    nacos:
+      server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
+      discovery:
+        namespace: ${NACOS_NAMESPACE:3ad86f15-1b9c-4576-a3f2-d98780feffdc}
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
+  datasource:
+    url: ${AI_PG_URL:jdbc:postgresql://localhost:5432/momentliving_ai}
+    username: ${AI_PG_USERNAME:momentliving}
+    password: ${AI_PG_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${AI_PG_POOL_SIZE:8}
+      connection-timeout: 5000
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 3s
+      connect-timeout: 2s
+  task:
+    execution:
+      pool:
+        core-size: 2
+        max-size: 4
+        queue-capacity: 100
+        thread-name-prefix: ai-async-
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY:}
+      chat:
+        options:
+          model: ${AI_CHAT_MODEL:qwen-plus}
+          temperature: 0.7
+
+momentliving:
+  ai:
+    enabled: ${AI_ENABLED:true}
+    rag-enabled: ${AI_RAG_ENABLED:true}
+    rag-top-k: 5
+    history-rounds: 10
+    knowledge-max-chars: 1500
+    embedding:
+      base-url: ${AI_EMBEDDING_BASE_URL:https://api.siliconflow.cn/v1}
+      api-key: ${AI_EMBEDDING_API_KEY:}
+      model: ${AI_EMBEDDING_MODEL:BAAI/bge-m3}
+    upstream:
+      shop-service-url: ${SHOP_SERVICE_URL:http://localhost:8092}
+      blog-service-url: ${BLOG_SERVICE_URL:http://localhost:8083}
+      voucher-service-url: ${VOUCHER_SERVICE_URL:http://localhost:8084}
+      merchant-service-url: ${MERCHANT_SERVICE_URL:http://localhost:8090}
+      timeout-seconds: 10
+
+logging:
+  level:
+    com.momentliving.ai: INFO
+    org.springframework.ai: INFO

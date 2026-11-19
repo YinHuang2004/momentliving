@@ -144,6 +144,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Result<Map<String, Object>> queryShopScore(Long shopId) {
+        // 先读 Redis Hash 缓存（avg/cnt），未命中回源 DB 重算并回填
         String key = RedisConstants.SHOP_SCORE_KEY + shopId;
         Map<Object, Object> cached = stringRedisTemplate.opsForHash().entries(key);
         if (!cached.isEmpty()) {
@@ -174,6 +175,7 @@ public class ReviewServiceImpl implements ReviewService {
         return result;
     }
 
+    /** 批量查评价作者（Feign 调 user-service），失败降级为空 Map，列表仍展示评价本身 */
     private Map<Long, UserVO> loadAuthors(List<Long> userIds) {
         try {
             Result<List<UserVO>> resp = userClient.selectUsersByIdsOrdered(userIds);

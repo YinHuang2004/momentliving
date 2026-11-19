@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/** 博客业务实现：发布三重校验 + 粉丝收件箱推送、点赞双 ZSet、收藏、Feed 滚动分页与联动清理 */
 @Service
 @Slf4j
 public class BlogServiceImpl implements BlogService {
@@ -169,6 +170,7 @@ public class BlogServiceImpl implements BlogService {
         return true;
     }
 
+    /** 是否已收藏：收藏表存在 (userId, blogId) 记录即已收藏 */
     @Override
     public Boolean isFavorite(Long blogId) {
         UserVO user = UserHolder.getUser();
@@ -228,6 +230,7 @@ public class BlogServiceImpl implements BlogService {
                 .collect(Collectors.toList());
     }
 
+    /** 某用户的博客列表：分页，按创建时间倒序 */
     @Override
     public List<BlogVO> queryUserBlogs(Long userId, Integer current, Integer pageSize) {
         LambdaQueryWrapper<Blog> queryWrapper = new LambdaQueryWrapper<>();
@@ -244,6 +247,7 @@ public class BlogServiceImpl implements BlogService {
                 .collect(Collectors.toList());
     }
 
+    /** 热门博客：按点赞数倒序分页 */
     @Override
     public List<BlogVO> queryHotBlog(Integer current, Integer pageSize) {
         LambdaQueryWrapper<Blog> wrapper = new LambdaQueryWrapper<>();
@@ -261,6 +265,7 @@ public class BlogServiceImpl implements BlogService {
                 .collect(Collectors.toList());
     }
 
+    /** 博客详情：查库后回填作者信息、点赞/收藏状态 */
     @Override
     public BlogVO queryBlogById(Long id) {
         Blog blog = blogMapper.selectById(id);
@@ -277,6 +282,7 @@ public class BlogServiceImpl implements BlogService {
         return vo;
     }
 
+    /** 点赞用户列表：取点赞 ZSet 分数最小（最早点赞）的前 5 个，Feign 按点赞顺序回填用户 */
     @Override
     public Result<List<UserVO>> queryBlogLikes(Long id) {
         String key = RedisConstants.BLOG_LIKED_KEY + id;
@@ -297,6 +303,7 @@ public class BlogServiceImpl implements BlogService {
         return Result.success(users);
     }
 
+    /** Feed 收件箱滚动分页：score 为发布时间戳，同分用 offset 跳过，游标=minTime+offset */
     @Override
     public Result<ScrollResult> queryBlogOfFollow(Long max, Integer offset) {
         //获取当前用户
@@ -424,6 +431,7 @@ public class BlogServiceImpl implements BlogService {
         vo.setIsLike(score!=null);
 
     }
+    /** 回填作者昵称头像（Feign 调 user-service，失败时保持 VO 原值） */
     private void queryUserInfo(BlogVO vo) {
         Result<UserVO> userResult = userClient.getUserInfo(vo.getUserId());
         if(userResult!=null&&userResult.getData()!=null){

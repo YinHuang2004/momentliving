@@ -1,5 +1,9 @@
 package com.momentliving.constant;
 
+/**
+ * Redis key 与 TTL 常量集中定义(登录态/验证码/缓存/秒杀/点赞/支付核销等),
+ * 各服务统一引用,避免散落硬编码。
+ */
 public class RedisConstants {
     /** 验证码发送间隔锁 key（60 秒内只能发一次） */
     public static final String LOGIN_CODE_INTERVAL_KEY = "login:code:interval:";
@@ -20,7 +24,28 @@ public class RedisConstants {
     public static final String CACHE_SHOP_TYPE_KEY = "cache:shop:type";
 
     public static final String SECKILL_STOCK_KEY = "seckill:stock:";
+    public static final String SECKILL_RESERVATION_KEY = "seckill:reservation:";
+    public static final String SECKILL_COMPENSATED_KEY = "seckill:compensated:";
     public static final Integer SECKILL_LIMIT=3;
+
+    /**
+     * 秒杀相关 key 必须带相同的 Redis Cluster hash tag，保证 Lua 的所有 KEYS 落在同一 slot。
+     */
+    public static String seckillStockKey(Long voucherId) {
+        return SECKILL_STOCK_KEY + "{" + voucherId + "}";
+    }
+
+    public static String seckillCountKey(Long voucherId) {
+        return SECKILL_COUNT_KEY + "{" + voucherId + "}";
+    }
+
+    public static String seckillReservationKey(Long voucherId) {
+        return SECKILL_RESERVATION_KEY + "{" + voucherId + "}";
+    }
+
+    public static String seckillCompensatedKey(Long voucherId, Long orderId) {
+        return SECKILL_COMPENSATED_KEY + "{" + voucherId + "}:" + orderId;
+    }
     public static final String BLOG_LIKED_KEY = "blog:liked:";
     /** 我点赞的博客反向索引（ZSet member=blogId score=点赞时间戳）：blog:my:liked:{userId}，"我的喜欢"列表用 */
     public static final String BLOG_MY_LIKED_KEY = "blog:my:liked:";

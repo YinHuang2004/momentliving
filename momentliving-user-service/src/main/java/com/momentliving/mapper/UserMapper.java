@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
+/** user 表 Mapper（用户账号主体：手机号/邮箱/密码/昵称/头像），含按 ids 顺序批量查询 */
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
 

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/** 管理员视图对象:登录成功返回管理员信息与 AccessToken */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

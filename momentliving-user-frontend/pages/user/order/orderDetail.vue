@@ -49,6 +49,13 @@
         <text class="order-detail__label">操作</text>
         <text class="order-detail__refund" @click="handleRefund">申请退款</text>
       </view>
+      <view class="order-detail__row" v-if="order.status === 0">
+        <text class="order-detail__label">操作</text>
+        <view class="order-detail__ops">
+          <text class="order-detail__refund" @click="goPay">去支付</text>
+          <text class="order-detail__refund" @click="handleCancelOrder">取消订单</text>
+        </view>
+      </view>
     </view>
   </template>
   </view>
@@ -56,7 +63,7 @@
 
 <script>
 import StatBadge from '@/components/StatBadge.vue'
-import { getOrder, getVoucher, refund } from '@/api/voucher.js'
+import { getOrder, getVoucher, refund, cancelOrder } from '@/api/voucher.js'
 
 /**
  * 订单详情：状态 + 券信息 + 16 位核销码（订单接口 verifyCode 字段，4 段 × 4 位展示）
@@ -139,6 +146,28 @@ export default {
           }
         }
       })
+    },
+    /**
+     * 取消订单（仅待支付）：后端立即关单并回补秒杀库存与限购资格
+     */
+    handleCancelOrder() {
+      uni.showModal({
+        title: '取消订单',
+        content: '取消后秒杀资格与库存立即释放，确定取消该订单？',
+        success: async (res) => {
+          if (!res.confirm) return
+          try {
+            await cancelOrder(this.order.id)
+            uni.showToast({ title: '订单已取消', icon: 'none' })
+            this.loadOrder()
+          } catch (e) {
+            // toast 已统一处理
+          }
+        }
+      })
+    },
+    goPay() {
+      uni.navigateTo({ url: `/pages/user/pay/payConfirm?orderId=${this.order.id}` })
     },
     formatTime(t) {
       return (t || '').replace('T', ' ').slice(0, 19)
@@ -264,6 +293,11 @@ export default {
 .order-detail__refund {
   color: $brand-accent;
   font-weight: 600;
+}
+
+.order-detail__ops {
+  display: flex;
+  gap: 32rpx;
 }
 
 /* NavBar 通栏：抵消根容器 padding */

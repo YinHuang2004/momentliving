@@ -32,6 +32,13 @@ public interface PaymentService {
     /** 用户申请退款（仅限「已支付未核销」订单） */
     Result<Void> refund(Long orderId);
 
+    /**
+     * 用户取消支付（支付确认页点 X / 返回离开时调用）：
+     * 仅将「待支付」流水置为支付失败，订单保持待支付，30 分钟内可重新发起支付；
+     * 不动订单状态与秒杀库存 —— 若一直未支付，由 TTL 死信 + 定时扫描双保险自动关单回补。
+     */
+    Result<Void> cancelPayment(Long orderId);
+
     /** 支付状态查询：订单状态 + 流水状态（前端轮询用） */
     Result<Map<String, Object>> queryPayStatus(Long orderId);
 

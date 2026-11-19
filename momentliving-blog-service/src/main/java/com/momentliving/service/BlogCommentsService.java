@@ -4,6 +4,7 @@ import com.momentliving.entity.BlogComments;
 
 import java.util.List;
 
+/** 博客评论业务接口 */
 public interface BlogCommentsService {
 
     /**

@@ -9,6 +9,9 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 店铺 Mapper（selectShopByIds 为 XML 实现，见 resources/mapper/ShopMapper.xml）
+ */
 @Mapper
 public interface ShopMapper extends BaseMapper<Shop> {
 
@@ -24,5 +27,6 @@ public interface ShopMapper extends BaseMapper<Shop> {
                 .collect(Collectors.toList());
     }
 
+    /** 批量查店铺并按传入 id 顺序返回（order by field），GEO 按距离排序的结果回表时保持次序 */
     List<Shop> selectShopByIds(List<Long> ids);
 }

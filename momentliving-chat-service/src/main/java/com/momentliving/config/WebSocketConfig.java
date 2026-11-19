@@ -24,6 +24,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Resource
     private ChatSocketHandler chatSocketHandler;
 
+    /** 注册 /ws/chat 端点：挂握手鉴权拦截器，放开源限制以兼容多端跨域连接 */
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(chatSocketHandler, "/ws/chat")

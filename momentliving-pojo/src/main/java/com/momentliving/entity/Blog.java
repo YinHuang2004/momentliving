@@ -7,6 +7,7 @@ import lombok.Data;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/** 探店笔记实体(blog 表):用户发布的店铺图文博文,liked/comments 为点赞/评论计数 */
 @Data
 public class Blog implements Serializable {
 

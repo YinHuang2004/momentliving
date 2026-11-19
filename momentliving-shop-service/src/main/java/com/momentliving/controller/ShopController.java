@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 店铺接口：详情（缓存三件套）/分页与 GEO 附近店铺/名称搜索（ES + MySQL 降级）/收藏/ES 运维入口
+ */
 @RestController
 @RequestMapping("/shop")
 public class ShopController {

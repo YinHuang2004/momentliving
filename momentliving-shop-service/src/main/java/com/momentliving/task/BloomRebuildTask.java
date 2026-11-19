@@ -12,6 +12,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 店铺布隆过滤器每日定时重建：分布式锁防多实例并发，双布隆 backup 桶重建 + 原子切换
+ */
 @Slf4j
 @Component
 public class BloomRebuildTask {

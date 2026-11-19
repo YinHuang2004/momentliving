@@ -1,0 +1,40 @@
+# Data ID: voucher-service.yaml
+spring:
+  rabbitmq:
+    host: ${RABBITMQ_HOST:127.0.0.1}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:momentliving}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ${RABBITMQ_VHOST:/}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+    listener:
+      simple:
+        acknowledge-mode: manual
+        prefetch: 1
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000
+          multiplier: 2
+          max-interval: 10000
+
+momentliving:
+  pay:
+    order-timeout-minutes: 30
+    mock-enabled: true
+    mock-callback-url: http://localhost:8080/pay/mock/notify
+    alipay:
+      enabled: ${ALIPAY_ENABLED:false}
+      gateway: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+      app-id: ${ALIPAY_APP_ID:}
+      app-private-key: ${ALIPAY_APP_PRIVATE_KEY:}
+      alipay-public-key: ${ALIPAY_PUBLIC_KEY:}
+      notify-url: ${ALIPAY_NOTIFY_URL:}
+      return-url: ${ALIPAY_RETURN_URL:}
+      sign-type: RSA2
+      charset: UTF-8
+      seller-id: ${ALIPAY_SELLER_ID:}

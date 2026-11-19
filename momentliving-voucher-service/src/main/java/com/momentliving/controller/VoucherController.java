@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 优惠券接口：普通券/秒杀券的增删改查与列表（用户端 + 管理端）
+ */
 @RestController
 @RequestMapping("/voucher")
 public class VoucherController {

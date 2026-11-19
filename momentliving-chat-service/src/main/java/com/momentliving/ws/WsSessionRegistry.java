@@ -27,6 +27,9 @@ public class WsSessionRegistry {
     /** userId → 该用户所有在线连接（已装饰） */
     private final ConcurrentHashMap<Long, Set<WebSocketSession>> sessions = new ConcurrentHashMap<>();
 
+    /**
+     * 单机会话注册：包上线程安全装饰器后挂到该用户的 Set（支持多端在线）
+     */
     public void register(Long userId, WebSocketSession rawSession) {
         WebSocketSession session = new ConcurrentWebSocketSessionDecorator(rawSession, 5_000, 256 * 1024);
         sessions.computeIfAbsent(userId, k -> ConcurrentHashMap.newKeySet()).add(session);
@@ -34,6 +37,9 @@ public class WsSessionRegistry {
                 sessions.get(userId).size());
     }
 
+    /**
+     * 下线注销：按原始 sessionId 匹配移除，用户最后一个连接断开后清掉整个 key
+     */
     public void unregister(Long userId, WebSocketSession rawSession) {
         Set<WebSocketSession> set = sessions.get(userId);
         if (set == null) {

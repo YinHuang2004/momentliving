@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/** 博客评论实体(表 blog_comments):parentId/answerId 支持楼中楼回复 */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)

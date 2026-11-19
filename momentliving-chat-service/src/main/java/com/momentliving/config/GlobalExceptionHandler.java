@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+/** 全局异常处理：聊天业务拒绝（ChatRejectException）单独返回原文案给前端 */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {

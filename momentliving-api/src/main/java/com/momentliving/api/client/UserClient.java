@@ -11,12 +11,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
+/**
+ * user-service 内部接口客户端:按 id/关键词查用户、足迹设置等,
+ * 供其他服务(如 blog、voucher)回填用户信息或查询用户配置。
+ */
 @FeignClient(name = "user-service", configuration = FeignConfig.class)
 public interface UserClient {
+    /** 查询单个用户信息 */
     @GetMapping("/user/feign/{id}")
     Result<UserVO> getUserInfo(@PathVariable("id") Long userId);
+    /** 按传入的 id 顺序批量查询用户列表 */
     @GetMapping("/user/feign/select")
     Result<List<UserVO>> selectUsersByIdsOrdered(@RequestParam("ids") List<Long> ids);
+    /** 按关键词搜索用户 */
     @GetMapping("/user/feign/search")
     Result<List<UserVO>> searchUsers(@RequestParam("keyword") String keyword);
 

@@ -24,7 +24,7 @@ public class PayOrderVO implements Serializable {
 
     private Long orderId;
 
-    /** 支付方式：1微信 2支付宝 3mock 演示 */
+    /** 支付方式：2支付宝，3 Mock 演示 */
     private Integer payType;
 
     /** 订单状态（OrderStatus 常量） */

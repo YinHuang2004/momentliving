@@ -86,6 +86,7 @@ public class ShopSearchServiceImpl implements ShopSearchService {
 
     @Override
     public int importAll() throws Exception {
+        // 分页（每页 500）扫全表批量 upsert；文档 id = 店铺 id，重复执行是覆盖，天然幂等
         ensureIndex();
         int page = 1;
         int total = 0;
@@ -107,6 +108,7 @@ public class ShopSearchServiceImpl implements ShopSearchService {
 
     @Override
     public int reindex() throws Exception {
+        // 全量重建 = 重新导入 + 差集清理"ES 有 DB 无"的脏文档（修复宕机期间漏同步的删除）
         int imported = importAll();
         purgeStale();
         return imported;

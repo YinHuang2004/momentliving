@@ -1,31 +1,29 @@
--- 1.参数列表
-local voucherId = ARGV[1]
-local userId = ARGV[2]
-local limit = tonumber(ARGV[3])
+-- KEYS must use the same {voucherId} hash tag for Redis Cluster compatibility.
+-- KEYS[1] stock key, KEYS[2] user purchase-count hash, KEYS[3] reservation hash.
+-- ARGV[1] userId, ARGV[2] limit, ARGV[3] orderId, ARGV[4] reservation timestamp.
 
-
--- 2.数据key
-local stockKey = 'seckill:stock:' .. voucherId
-local countKey = 'seckill:count:' .. voucherId
-
--- 3.业务逻辑
--- 判断库存是否充足
-local stock = tonumber(redis.call('get', stockKey))
-if (stock <= 0) then
-    return 1
+local stockValue = redis.call('GET', KEYS[1])
+if not stockValue then
+    return -3
 end
 
--- 判断用户下单次数是否超过限制
-local bought = tonumber(redis.call('hget', countKey, userId) or '0')
-if (bought >= limit) then
-    return 2
+local stock = tonumber(stockValue)
+if not stock or stock <= 0 then
+    return -1
 end
 
+local bought = tonumber(redis.call('HGET', KEYS[2], ARGV[1]) or '0')
+local limit = tonumber(ARGV[2])
+if bought >= limit then
+    return -2
+end
 
--- 扣库存
-redis.call('decrby', stockKey, 1)
+redis.call('DECRBY', KEYS[1], 1)
+local slot = redis.call('HINCRBY', KEYS[2], ARGV[1], 1)
 
--- 下单（记录用户）
-redis.call('hincrby', countKey, userId, 1)
+-- The Redis reservation closes the crash window between pre-deduction and MQ delivery.
+-- Format: userId|purchaseSlot|lastAttemptMillis|state|attemptCount
+local reservation = ARGV[1] .. '|' .. slot .. '|' .. ARGV[4] .. '|PENDING|0'
+redis.call('HSET', KEYS[3], ARGV[3], reservation)
 
-return 0
+return slot

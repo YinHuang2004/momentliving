@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+/**
+ * 登录校验拦截器（第二层）：UserHolder 中无用户则 401，身份注入由第一层 UserContextInterceptor 完成
+ */
 @Component
 public class LoginInterceptor implements HandlerInterceptor {
 

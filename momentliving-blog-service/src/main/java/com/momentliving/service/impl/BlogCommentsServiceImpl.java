@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/** 评论业务实现：发表（归属当前用户）、分页查询、删除（仅作者本人） */
 @Service
 public class BlogCommentsServiceImpl implements BlogCommentsService {
 
@@ -38,6 +39,7 @@ public class BlogCommentsServiceImpl implements BlogCommentsService {
         return blogCommentsMapper.selectById(id);
     }
 
+    /** 某博客的评论列表：分页，按时间倒序 */
     @Override
     public List<BlogComments> queryPage(Long blogId, Integer current, Integer pageSize) {
         LambdaQueryWrapper<BlogComments> wrapper = new LambdaQueryWrapper<>();
@@ -46,6 +48,7 @@ public class BlogCommentsServiceImpl implements BlogCommentsService {
         return blogCommentsMapper.selectPage(new Page<>(current, pageSize), wrapper).getRecords();
     }
 
+    /** 删除评论：先查存在性再校验归属，越权/不存在均抛 IllegalArgumentException */
     @Override
     public void deleteById(Long id) {
         Long userId = UserHolder.getUser().getId();

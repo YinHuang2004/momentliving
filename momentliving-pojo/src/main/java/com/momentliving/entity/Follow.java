@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/** 用户关注关系实体(表 follow):userId 关注 followUserId */
 @Data
 @Builder
 @NoArgsConstructor

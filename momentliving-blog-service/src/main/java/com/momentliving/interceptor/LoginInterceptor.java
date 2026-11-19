@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+/** 登录校验：ThreadLocal 中无用户则 401（用户信息由 UserContextInterceptor 解析） */
 @Component
 public class LoginInterceptor implements HandlerInterceptor {
 

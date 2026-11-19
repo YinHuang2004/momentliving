@@ -58,7 +58,7 @@ momentliving:
     alipay:
       # 未申请沙箱时保持 false，走 mock 演示
       enabled: false
-      # 沙箱网关（正式环境换 https://openapi.alipay.com/gateway.do）
+    # 支付宝沙箱网关
       gateway: https://openapi-sandbox.dl.alipaydev.com/gateway.do
       app-id: # 请填写沙箱 APPID
       app-private-key: # 请填写应用私钥（PKCS8，不带头尾标记）

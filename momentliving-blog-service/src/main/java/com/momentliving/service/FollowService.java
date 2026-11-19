@@ -6,6 +6,7 @@ import com.momentliving.vo.UserVO;
 
 import java.util.List;
 
+/** 关注关系业务接口：关注/取关、列表、统计与共同关注 */
 public interface FollowService {
 
     /**
@@ -43,5 +44,6 @@ public interface FollowService {
      */
     List<UserVO> queryFanListOfUser(Long userId);
 
+    /** 与某用户的共同关注（Redis 集合求交集，空集时回查 DB 并预热缓存） */
     List<UserVO> getCommonFollow(Long followUserId);
 }

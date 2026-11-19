@@ -9,9 +9,11 @@ import com.momentliving.mapper.VoucherOrderMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import com.momentliving.service.SeckillReservationService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import jakarta.annotation.Resource;
 import java.util.concurrent.TimeUnit;
@@ -31,9 +33,9 @@ public class OrderCloseHandler {
     @Resource
     private PaymentMapper paymentMapper;
     @Resource
-    private StringRedisTemplate stringRedisTemplate;
-    @Resource
     private RedissonClient redissonClient;
+    @Resource
+    private SeckillReservationService reservationService;
 
     /**
      * 关闭一笔待支付订单并回补库存。
@@ -65,15 +67,10 @@ public class OrderCloseHandler {
             if (voucherOrderMapper.casClose(orderId) <= 0) {
                 return false; // 并发场景已被别处流转
             }
-            // 2. 回补库存：DB 先加回（下单消费时扣过），再同步 Redis 预扣量
-            seckillVoucherMapper.restoreStock(order.getVoucherId());
-            try {
-                stringRedisTemplate.opsForValue().increment(RedisConstants.SECKILL_STOCK_KEY + order.getVoucherId());
-                stringRedisTemplate.opsForHash().increment(RedisConstants.SECKILL_COUNT_KEY + order.getVoucherId(),
-                        order.getUserId().toString(), -1);
-            } catch (Exception e) {
-                // DB 是库存真源，Redis 补偿失败留痕告警即可
-                log.error("关单 Redis 库存回补失败，orderId={}, voucherId={}", orderId, order.getVoucherId(), e);
+            // 2. 只有秒杀订单才回补秒杀库存和 Redis 限购资格。
+            if (order.getPurchaseSlot() != null) {
+                seckillVoucherMapper.restoreStock(order.getVoucherId());
+                registerRedisCompensationAfterCommit(order);
             }
             // 3. 若用户点过支付但没付完，把待支付流水置为支付失败，保持流水与订单一致
             paymentMapper.casMarkFailed(orderId);
@@ -84,5 +81,27 @@ public class OrderCloseHandler {
                 lock.unlock();
             }
         }
+    }
+
+    /** 事务提交后再回补 Redis 预占；无事务上下文则立即执行，失败留给兜底任务重试 */
+    private void registerRedisCompensationAfterCommit(VoucherOrder order) {
+        Runnable compensation = () -> {
+            try {
+                reservationService.compensate(order.getVoucherId(), order.getUserId(), order.getId());
+            } catch (Exception e) {
+                // ClosedOrderCompensationTask 会按 MySQL 已关闭订单继续兜底。
+                log.error("关单已提交，Redis 回补失败，orderId={}", order.getId(), e);
+            }
+        };
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            compensation.run();
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                compensation.run();
+            }
+        });
     }
 }

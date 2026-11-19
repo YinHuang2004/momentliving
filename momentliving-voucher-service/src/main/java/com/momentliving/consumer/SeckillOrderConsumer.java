@@ -15,9 +15,12 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.Resource;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 秒杀订单队列消费者：用户级分布式锁串行下单落库，成功后补发延迟关单消息；
+ * 异常抛出交容器重试，耗尽后经队列 DLX 进入补偿消费
+ */
 @Slf4j
 @Component
 public class SeckillOrderConsumer {
@@ -48,10 +51,7 @@ public class SeckillOrderConsumer {
             // 尝试获取锁：最多等 5 秒，拿到后 30 秒自动释放
             boolean isLock = lock.tryLock(5, 30, TimeUnit.SECONDS);
             if (!isLock) {
-                log.warn("获取分布式锁失败，稍后重试，userId={}", userId);
-                // 获取不到锁，NACK 并重新入队，等下次消费
-                channel.basicNack(deliveryTag, false, true);
-                return;
+                throw new IllegalStateException("获取用户下单锁失败，userId=" + userId);
             }
 
             try {
@@ -85,16 +85,10 @@ public class SeckillOrderConsumer {
             }
 
         } catch (Exception e) {
-            log.error("秒杀订单处理异常，orderId={}", orderId, e);
-            try {
-                // ========== 异常处理：NACK 拒绝消息 ==========
-                // 参数：deliveryTag, multiple=false, requeue=false
-                // requeue=false：不重新入队，消息进入死信队列（我们配置了死信）
-                // 如果 requeue=true：消息重新入队，会被再次消费（配合重试机制）
-                channel.basicNack(deliveryTag, false, false);
-            } catch (IOException ex) {
-                log.error("消息 NACK 失败", ex);
-            }
+            // 不在监听器里吞异常或手工热循环 requeue：交给 Spring AMQP retry。
+            // 达到 max-attempts 后由容器 reject，RabbitMQ 再按队列 DLX 配置进入补偿队列。
+            log.error("秒杀订单处理异常，交给容器重试，orderId={}", orderId, e);
+            throw new IllegalStateException("秒杀订单消费失败，orderId=" + orderId, e);
         }
     }
 }

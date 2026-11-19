@@ -7,12 +7,14 @@ import com.momentliving.vo.VoucherVO;
 
 import java.util.List;
 
+/** 优惠券服务：券增删改查、秒杀券信息与 Redis 库存联动、适用范围回填 */
 public interface VoucherService {
 
     Long save(VoucherDTO voucher);
 
     Voucher getById(Long id);
 
+    /** 店铺可用券列表：适用本店的券 + 全场通用券 */
     Result<List<VoucherVO>> queryVoucherOfShop(Long shopId);
 
     /**

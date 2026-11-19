@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 商铺类型接口：类型的增删改查
+ */
 @RestController
 @RequestMapping("/shop-type")
 public class ShopTypeController {

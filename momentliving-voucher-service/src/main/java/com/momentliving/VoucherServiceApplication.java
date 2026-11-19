@@ -9,6 +9,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+/**
+ * 优惠券服务启动类：券管理、秒杀下单（Lua 预扣 + MQ）、支付/核销与超时关单兜底
+ */
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients(basePackageClasses = UserClient.class)   // ★ 个人主页足迹：UserClient 查足迹可见性设置

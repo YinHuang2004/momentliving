@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+/** 聊天业务实现：WS 发送链路（幂等落库 + 推送 + ack/reject）、首条限制状态机、会话查询与群管理 */
 @Slf4j
 @Service
 public class ChatServiceImpl implements ChatService {
@@ -290,6 +291,7 @@ public class ChatServiceImpl implements ChatService {
         return vo;
     }
 
+    /** 搜用户：代理 user-service（昵称模糊/手机号精确），空关键词直接返回空列表 */
     @Override
     public List<UserVO> searchUsers(String keyword) {
         if (keyword == null || keyword.isBlank()) {
@@ -299,6 +301,7 @@ public class ChatServiceImpl implements ChatService {
         return res == null || res.getData() == null ? List.of() : res.getData();
     }
 
+    /** 未读总数：我全部会话中"对方发来且未读"的消息数（自己发的不算） */
     @Override
     public long unreadCount(Long userId) {
         List<Long> sessionIds = mySessionIds(userId);
@@ -376,6 +379,7 @@ public class ChatServiceImpl implements ChatService {
                 .toList();
     }
 
+    /** 退群：群主不可退（只能解散），普通成员删行并原子减 member_count */
     @Override
     @Transactional
     public void leaveGroup(Long userId, Long groupId) {
@@ -386,6 +390,7 @@ public class ChatServiceImpl implements ChatService {
         removeMemberRow(groupId, userId);
     }
 
+    /** 移除成员：仅群主/管理员可操作，且不能移除群主 */
     @Override
     @Transactional
     public void removeMember(Long userId, Long groupId, Long targetUserId) {
@@ -402,6 +407,7 @@ public class ChatServiceImpl implements ChatService {
         removeMemberRow(groupId, targetUserId);
     }
 
+    /** 设置管理员：仅群主可操作，目标必须是群成员 */
     @Override
     public void setAdmin(Long userId, Long groupId, Long targetUserId) {
         ChatGroup group = requireGroupMember(groupId, userId);
@@ -416,6 +422,7 @@ public class ChatServiceImpl implements ChatService {
         chatGroupMemberMapper.updateById(target);
     }
 
+    /** 解散群：仅群主，事务内联动删除成员/群/会话 */
     @Override
     @Transactional
     public void dissolveGroup(Long userId, Long groupId) {
@@ -455,6 +462,7 @@ public class ChatServiceImpl implements ChatService {
         return group;
     }
 
+    /** 查会话并校验成员资格，供查询类接口使用（不存在/非成员抛 ChatRejectException） */
     private ChatSession requireMember(Long sessionId, Long userId) {
         ChatSession cs = chatSessionMapper.selectById(sessionId);
         if (cs == null) {
@@ -469,6 +477,7 @@ public class ChatServiceImpl implements ChatService {
                 .eq(ChatGroupMember::getGroupId, groupId).eq(ChatGroupMember::getUserId, userId));
     }
 
+    /** 删除成员行，并把群的 member_count 原子减 1 */
     private void removeMemberRow(Long groupId, Long targetUserId) {
         chatGroupMemberMapper.delete(new LambdaQueryWrapper<ChatGroupMember>()
                 .eq(ChatGroupMember::getGroupId, groupId).eq(ChatGroupMember::getUserId, targetUserId));

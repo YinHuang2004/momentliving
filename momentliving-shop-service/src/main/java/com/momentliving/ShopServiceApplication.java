@@ -8,6 +8,9 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+/**
+ * 店铺服务启动类：店铺缓存/GEO 附近店铺/收藏/评价/ES 搜索
+ */
 @SpringBootApplication
 @EnableDiscoveryClient
 @MapperScan("com.momentliving.mapper")       // ★ 扫描本服务的 Mapper（ShopMapper / ShopTypeMapper / ReviewMapper）

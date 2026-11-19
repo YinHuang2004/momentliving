@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+/** 聊天消息表 Mapper：clientMsgId 幂等回查、游标分页、未读计数均由调用方用 Wrapper 表达 */
 @Mapper
 public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
     // 定制查询均可用 MyBatis-Plus 的 LambdaQueryWrapper 表达：

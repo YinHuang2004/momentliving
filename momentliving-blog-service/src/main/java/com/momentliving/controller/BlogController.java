@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/** 探店博客接口：发布/点赞/收藏/详情/热门/关注动态流（Feed） */
 @RestController
 @RequestMapping("/blog")
 public class BlogController {
@@ -37,11 +38,14 @@ public class BlogController {
         return Result.success(blogService.purchasableShops());
     }
 
+    /** 点赞/取消点赞（toggle） */
     @PutMapping("/like/{id}")
     public Result<Void> likeBlog(@PathVariable("id") Long id) {
         blogService.likeBlog(id);
         return Result.success();
     }
+
+    /** 博客的点赞用户列表（按点赞时间正序取前 5） */
     @GetMapping("/likes/{id}")
     public Result<List<UserVO>> queryBlogLikes(@PathVariable("id") Long id) {
 
@@ -80,6 +84,7 @@ public class BlogController {
         return Result.success(blogService.myLikedBlogs());
     }
 
+    /** 某用户的博客列表（分页，时间倒序） */
     @GetMapping("/of/user/{userId}")
     public Result<List<BlogVO>> queryMyBlog(@PathVariable("userId") Long userId,
                                             @RequestParam(value = "current", defaultValue = "1") Integer current) {
@@ -87,12 +92,14 @@ public class BlogController {
         return Result.success(records);
     }
 
+    /** 热门博客（按点赞数倒序分页） */
     @GetMapping("/hot")
     public Result<List<BlogVO>> queryHotBlog(@RequestParam(value = "current", defaultValue = "1") Integer current) {
         List<BlogVO> records = blogService.queryHotBlog(current, SystemConstants.MAX_PAGE_SIZE);
         return Result.success(records);
     }
 
+    /** 博客详情（含作者信息/当前用户点赞/收藏状态） */
     @GetMapping("/{id}")
     public Result<BlogVO> queryBlogById(@PathVariable("id") Long id) {
         BlogVO blog = blogService.queryBlogById(id);
@@ -101,12 +108,14 @@ public class BlogController {
         }
         return Result.success(blog);
     }
+    /** 关注的人的动态流（Feed 收件箱滚动分页：lastId=上次最小时间戳，offset=同分偏移） */
     @GetMapping("/of/follow")
     public Result<ScrollResult> queryBlogOfFollow(
             @RequestParam("lastId") Long max, @RequestParam(value = "offset", defaultValue = "0") Integer offset){
         return blogService.queryBlogOfFollow(max, offset);
     }
 
+    /** 更新博客（仅作者本人，只允许改标题/内容/图片） */
     @PutMapping("/{id}")
     public Result<Void> updateBlog(@PathVariable("id") Long id, @RequestBody BlogDTO blog) {
         blog.setId(id);

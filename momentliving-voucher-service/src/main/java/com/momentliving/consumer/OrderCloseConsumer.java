@@ -8,7 +8,6 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.Resource;
-import java.io.IOException;
 
 /**
  * 超时关单消费者：监听延迟队列的死信投递。
@@ -21,6 +20,7 @@ public class OrderCloseConsumer {
     @Resource
     private OrderCloseHandler orderCloseHandler;
 
+    /** 消费关单消息：成功 ACK；异常上抛交容器重试，避免漏关单 */
     @RabbitListener(queues = RabbitMQConfig.ORDER_CLOSE_QUEUE, concurrency = "2")
     public void handleOrderClose(String orderIdStr, Message message, Channel channel) {
         long deliveryTag = message.getMessageProperties().getDeliveryTag();
@@ -30,13 +30,8 @@ public class OrderCloseConsumer {
             channel.basicAck(deliveryTag, false);
             log.debug("关单消息处理完毕，orderId={}, closed={}", orderId, closed);
         } catch (Exception e) {
-            log.error("关单消息处理异常，orderIdStr={}, NACK 进入重试判断", orderIdStr, e);
-            try {
-                // 不 requeue：消息进本地日志人工排查；关单还有每分钟的扫描兜底，不会丢单
-                channel.basicNack(deliveryTag, false, false);
-            } catch (IOException ex) {
-                log.error("NACK 失败", ex);
-            }
+            log.error("关单消息处理异常，交给容器重试，orderIdStr={}", orderIdStr, e);
+            throw new IllegalStateException("关单消息消费失败，orderId=" + orderIdStr, e);
         }
     }
 }

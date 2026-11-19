@@ -9,6 +9,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Redisson 客户端配置：单机模式，供订单/核销等分布式锁使用
+ */
 @Configuration
 @ConfigurationProperties(prefix = "spring.data.redis")
 @Data

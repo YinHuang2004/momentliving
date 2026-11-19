@@ -26,7 +26,7 @@ public interface ShopService {
     Long add(ShopDTO shop);
 
     /**
-     * 新增店铺
+     * 删除店铺（同时删缓存与 ES 文档）
      * @param id
      */
     void delete(Long id);
@@ -56,5 +56,6 @@ public interface ShopService {
      */
     List<ShopVO> myFavoriteShops();
 
+    /** 写入带逻辑过期的店铺缓存（启动预热与过期重建共用） */
     void saveShop2Redis(Long id,Long logicExpireSeconds);
 }

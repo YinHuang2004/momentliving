@@ -31,6 +31,11 @@
       <view class="order-item__actions">
         <button
           v-if="o.status === 0"
+          class="order-item__btn order-item__btn--plain"
+          @click="handleCancel(o)"
+        >取消订单</button>
+        <button
+          v-if="o.status === 0"
           class="order-item__btn order-item__btn--primary"
           @click="goPay(o)"
         >去支付</button>
@@ -61,7 +66,7 @@
 <script>
 import StatBadge from '@/components/StatBadge.vue'
 import EmptyView from '@/components/EmptyView.vue'
-import { listMyOrders, getVoucher, refund } from '@/api/voucher.js'
+import { listMyOrders, getVoucher, refund, cancelOrder } from '@/api/voucher.js'
 
 /**
  * 我的订单：状态筛选 tabs + 订单卡片
@@ -159,6 +164,25 @@ export default {
     },
     goPay(order) {
       uni.navigateTo({ url: `/pages/user/pay/payConfirm?orderId=${order.id}` })
+    },
+    /**
+     * 取消订单（仅待支付）：后端立即关单并回补秒杀库存与限购资格
+     */
+    handleCancel(order) {
+      uni.showModal({
+        title: '取消订单',
+        content: '取消后秒杀资格与库存立即释放，确定取消该订单？',
+        success: async (res) => {
+          if (!res.confirm) return
+          try {
+            await cancelOrder(order.id)
+            uni.showToast({ title: '订单已取消', icon: 'none' })
+            this.switchTab(this.currentStatus)
+          } catch (e) {
+            // toast 已统一处理
+          }
+        }
+      })
     },
     goDetail(order) {
       uni.navigateTo({ url: `/pages/user/order/orderDetail?id=${order.id}` })

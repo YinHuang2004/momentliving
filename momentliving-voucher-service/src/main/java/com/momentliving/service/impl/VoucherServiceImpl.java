@@ -24,6 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * 优惠券实现：券 CRUD + 适用范围（voucher_shop 关系表）落库，
+ * 秒杀券联动 seckill_voucher 与 Redis 库存 key
+ */
 @Service
 public class VoucherServiceImpl implements VoucherService {
 
@@ -38,6 +42,7 @@ public class VoucherServiceImpl implements VoucherService {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
+    /** 新增普通券：插券主表并按 DTO 落适用范围关系 */
     @Override
     public Long save(VoucherDTO dto) {
         Voucher voucher = BeanUtil.copyProperties(dto, Voucher.class);
@@ -140,7 +145,7 @@ public class VoucherServiceImpl implements VoucherService {
         seckillVoucherService.save(seckillVoucher);
         // 保存秒杀库存到 Redis 中
         stringRedisTemplate.opsForValue().set(
-                RedisConstants.SECKILL_STOCK_KEY + voucher.getId(),
+                RedisConstants.seckillStockKey(voucher.getId()),
                 dto.getStock().toString()
         );
         return voucher.getId();
@@ -188,7 +193,7 @@ public class VoucherServiceImpl implements VoucherService {
             seckillVoucherService.update(seckillVoucher);
             if (dto.getStock() != null) {
                 stringRedisTemplate.opsForValue().set(
-                        RedisConstants.SECKILL_STOCK_KEY + dto.getId(),
+                        RedisConstants.seckillStockKey(dto.getId()),
                         dto.getStock().toString()
                 );
             }
@@ -209,7 +214,10 @@ public class VoucherServiceImpl implements VoucherService {
         // 秒杀券：删除秒杀信息与 Redis 库存
         if (voucher.getType() != null && voucher.getType() == 1) {
             seckillVoucherService.deleteByVoucherId(id);
-            stringRedisTemplate.delete(RedisConstants.SECKILL_STOCK_KEY + id);
+            stringRedisTemplate.delete(java.util.List.of(
+                    RedisConstants.seckillStockKey(id),
+                    RedisConstants.seckillCountKey(id),
+                    RedisConstants.seckillReservationKey(id)));
         }
     }
 

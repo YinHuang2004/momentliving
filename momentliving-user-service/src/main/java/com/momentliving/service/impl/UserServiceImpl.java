@@ -46,6 +46,10 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+/**
+ * 用户服务实现：双 Token 签发/刷新/吊销（Redis key login:refresh:{userId}）、BCrypt 密码管理、
+ * Bitmap 签到、每日积分与足迹设置
+ */
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {
@@ -400,6 +404,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    /** 邮箱首次登录自动注册（随机昵称 + 初始化 user_info 行） */
     private User addUserWithEmail(String email) {
         log.info("通过 email 新增用户:{}", email);
         //随机昵称
@@ -568,6 +573,9 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    /**
+     * 足迹可见开关写 Redis（"1" 可见 / "0" 不可见；未设置时查询侧默认可见）
+     */
     @Override
     public void updateFootprintVisible(Boolean visible) {
         Long userId = UserHolder.getUser().getId();
@@ -602,6 +610,9 @@ public class UserServiceImpl implements UserService {
         return Result.success(credits);
     }
 
+    /**
+     * 查询当前积分与今日领取状态（领取标记 key 当天有效）
+     */
     @Override
     public Result<CreditsVO> getCredits() {
         Long userId = UserHolder.getUser().getId();

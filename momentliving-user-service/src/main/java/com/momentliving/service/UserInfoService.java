@@ -2,6 +2,7 @@ package com.momentliving.service;
 
 import com.momentliving.entity.UserInfo;
 
+/** 用户详情（user_info 表）服务：详情行读写（upsert）与积分累加 */
 public interface UserInfoService {
 
     void save(UserInfo userInfo);

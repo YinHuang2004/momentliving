@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/** 用户扩展信息实体(表 user_info):城市/简介/粉丝数/积分等;昵称与头像仍存 user 表,经透传字段回填 */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)

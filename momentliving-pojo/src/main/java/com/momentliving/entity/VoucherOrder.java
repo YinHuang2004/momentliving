@@ -25,6 +25,9 @@ public class VoucherOrder implements Serializable {
     private Integer purchaseSlot;
     private Integer payType;
     private Integer status;
+    /** Redis 补偿标记：0 未回补 Redis / 1 已回补。幂等凭据真源在 MySQL，
+     *  补偿前 CAS 置位（影响行数=1 才执行 Lua），防止 Redis 数据丢失后重放超补。 */
+    private Integer redisCompensated;
     private LocalDateTime createTime;
     private LocalDateTime payTime;
     private LocalDateTime useTime;

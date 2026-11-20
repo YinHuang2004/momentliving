@@ -32,6 +32,15 @@ public interface VoucherOrderMapper extends BaseMapper<VoucherOrder> {
     int casClose(Long orderId);
 
     /**
+     * 抢 Redis 补偿执行权：标记 0→1，rows=1 表示本调用获得执行权。
+     * 幂等凭据真源在 MySQL（不随 Redis 重启丢失），关单处理器与兜底补偿任务共用此凭据；
+     * Redis 数据丢失后对已关闭订单的重放补偿会被 rows=0 挡住，防止与对账任务的
+     * key 重建叠加造成库存超补（2026-11-20 事故，见 docs/sql/03-redis-compensated-marker.sql）。
+     */
+    @Update("update voucher_order set redis_compensated = 1 where id = #{orderId} and redis_compensated = 0")
+    int markRedisCompensated(Long orderId);
+
+    /**
      * 商家端统计：该店铺「已支付(1) 未核销」的待核销订单数。
      * 范围 = voucher_shop（含本店的多店/单店券 + 无记录的全场通用券）
      */

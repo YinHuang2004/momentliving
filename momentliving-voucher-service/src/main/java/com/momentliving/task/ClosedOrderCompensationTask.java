@@ -35,6 +35,13 @@ public class ClosedOrderCompensationTask {
                 .select(VoucherOrder::getId, VoucherOrder::getUserId, VoucherOrder::getVoucherId));
         for (VoucherOrder order : orders) {
             try {
+                // 幂等凭据真源在 MySQL：先 CAS 抢标记（0→1），抢到才执行 Lua 回补。
+                // Redis 重启丢失数据后，Lua 内的 Redis marker 一并消失，若只靠它防重放，
+                // 会与对账任务的"key 丢失按真源重建"叠加造成库存超补（2026-11-20 事故）。
+                // 此处 CAS 的 rows=0 直接跳过；rows=1 后 Lua 失败则由对账任务按真源重建收敛。
+                if (orderMapper.markRedisCompensated(order.getId()) <= 0) {
+                    continue;
+                }
                 reservationService.compensate(order.getVoucherId(), order.getUserId(), order.getId());
             } catch (Exception e) {
                 log.error("已关闭订单 Redis 补偿失败，orderId={}", order.getId(), e);

@@ -87,9 +87,16 @@ public class OrderCloseHandler {
     private void registerRedisCompensationAfterCommit(VoucherOrder order) {
         Runnable compensation = () -> {
             try {
+                // 幂等凭据真源在 MySQL：先 CAS 抢标记（0→1）再执行 Lua，
+                // 与 ClosedOrderCompensationTask 共用同一凭据——谁先抢到谁补偿，
+                // Redis 数据丢失后的任务重放也会被该标记挡住（2026-11-20 事故修复）。
+                if (voucherOrderMapper.markRedisCompensated(order.getId()) <= 0) {
+                    return; // 已被兜底任务补偿过
+                }
                 reservationService.compensate(order.getVoucherId(), order.getUserId(), order.getId());
             } catch (Exception e) {
-                // ClosedOrderCompensationTask 会按 MySQL 已关闭订单继续兜底。
+                // 标记已置 1 但 Lua 执行失败：Redis 库存将短暂偏低，
+                // 由 SeckillReconciliationTask 按 MySQL 真源重建收敛，不再重放事件。
                 log.error("关单已提交，Redis 回补失败，orderId={}", order.getId(), e);
             }
         };
